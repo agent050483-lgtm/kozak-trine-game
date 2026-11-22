@@ -229,6 +229,7 @@ function initLevel(epochIndex) {
 }
 
 function startGame(epochIndex) {
+    toggleFullscreen();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.remove('hidden');
@@ -785,3 +786,18 @@ window.addEventListener('keyup', (e) => {
     if (e.code === 'KeyQ') keys.deep = false;
     if (e.code === 'KeyE') keys.front = false;
 });
+
+function toggleFullscreen() {
+    const docEl = document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+        if (req) {
+            req.call(docEl).catch(() => {});
+        }
+    } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+        if (exit) {
+            exit.call(document).catch(() => {});
+        }
+    }
+}
