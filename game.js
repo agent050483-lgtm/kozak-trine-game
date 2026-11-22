@@ -9,13 +9,19 @@ window.addEventListener('resize', resize);
 resize();
 
 // ==========================================
-// 1. СПРАЙТИ У КОРЕНІ РЕПОЗИТОРІЮ
-// Герой ("Козак"): kozak_hero.png
-// Ворог ("Російський стрілець"): russian_shooter.png
+// СПРАЙТИ (ПРОСТО ЗАМІНИ АБО ДОКИНЬ ЦІ PNG-ФАЙЛИ В ПАПКУ З ГРОЮ)
 // ==========================================
 const SPRITE_PATHS = {
-    kozak_hero: 'kozak_hero.png',
-    russian_shooter: 'russian_shooter.png'
+    hero: 'hero_sprite.png',
+    enemy: 'russian_shooter.png',
+    barrel: 'barrel_sprite.png',
+    crate: 'crate_sprite.png',
+    pistol: 'pistol_sprite.png',
+    heart: 'heart_sprite.png',
+    knife: 'knife_sprite.png',
+    saber: 'saber_sprite.png',
+    drone: 'drone_sprite.png',
+    flag: 'flag_sprite.png'
 };
 
 const sprites = {};
@@ -27,213 +33,415 @@ for (let key in SPRITE_PATHS) {
     sprites[key] = img;
 }
 
-// ==========================================
-// 2. 4 ІСТОРИЧНІ ЕПОХИ
-// ==========================================
-const EPOCHS = [
+const LEVELS = [
     {
-        name: "Епоха I: Заснування Запорозької Січі (1556)",
-        historyTitle: "1556 рік — Дмитро Вишневецький (Байда)",
-        historyText: "На острові Мала Хортиця зведено перші козацькі укріплення. Рухай козака вліво/вправо та вглиб/на себе (кнопки Вглиб / До себе), щоб обходити ворогів і діставатися драбин та ящиків.",
-        skyColor: ["#1e3c72", "#2a5298"],
-        farBgType: "fortress_hortytsia",
-        groundColor: "#3b5e2b"
+        era: 0,
+        shortTitle: "1. Запорозька Січ (1556)",
+        desc: "Мала Хортиця, укріплення Байди та оборона краю.",
+        name: "Рівень 1: Запорозька Січ (1556)",
+        historyTitle: "1556 рік — Заснування Січі на Малій Хортиці",
+        historyText: "Козацькі укріплення стають форпостом свободи. Рубай бочки мечем або ставай на них, розбивай ящики з 2-го удару та рости від перемог аж до велетня-Халка!",
+        sky: ["#1e3c72", "#2a5298"],
+        ground: "#3b5e2b",
+        sceneType: "cossack_sich",
+        flyingCar: false
     },
     {
-        name: "Епоха II: Визвольна війна Хмельницького (1648)",
-        historyTitle: "1648 рік — Визвольна війна Б. Хмельницького",
-        historyText: "Під проводом гетьмана Богдана Хмельницького козацтво піднялося за волю України. Підбирай ножі та трофейні пістолі — пістоль зникає після 3 пострілів.",
-        skyColor: ["#ff7e5f", "#feb47b"],
-        farBgType: "steppe_mounds",
-        groundColor: "#4a5d23"
+        era: 0,
+        shortTitle: "2. Хмельниччина (1648)",
+        desc: "Визвольна війна Б. Хмельницького та козацькі походи.",
+        name: "Рівень 2: Хмельниччина (1648)",
+        historyTitle: "1648 рік — Визвольна війна під проводом Б. Хмельницького",
+        historyText: "Підіймаються козацькі полки. Збирай ножі та пістолі, проходь платформи й веди наступ.",
+        sky: ["#ff7e5f", "#feb47b"],
+        ground: "#4a5d23",
+        sceneType: "cossack_steppe",
+        flyingCar: false
     },
     {
-        name: "Епоха III: Доба Гетьмана Мазепи (1709)",
-        historyTitle: "1709 рік — Доба козацького бароко та Мазепи",
-        historyText: "Часи розквіту барокової архітектури та боротьби за автономію Гетьманщини. Залазь по драбинах і поповнюй здоров'я сердечками.",
-        skyColor: ["#2c3e50", "#4ca1af"],
-        farBgType: "baroque_church",
-        groundColor: "#5c4033"
+        era: 0,
+        shortTitle: "3. Доба Мазепи (1709)",
+        desc: "Козацьке бароко, собори та боротьба за державність.",
+        name: "Рівень 3: Доба Гетьмана Мазепи (1709)",
+        historyTitle: "1709 рік — Доба Мазепи та козацького бароко",
+        historyText: "Час розквіту культури й боротьби за незалежність Гетьманщини. Підіймайся драбинами та тримай стрій.",
+        sky: ["#2c3e50", "#4ca1af"],
+        ground: "#5c4033",
+        sceneType: "cossack_baroque",
+        flyingCar: false
     },
     {
-        name: "Епоха IV: Холодний Яр та УНР (1918–1922)",
-        historyTitle: "1918 рік — Холодний Яр та УНР",
-        historyText: "У лісах Холодного Яру триває боротьба за Українську Народну Республіку. Пробийся крізь ворожі застави до українського прапора!",
-        skyColor: ["#232526", "#414345"],
-        farBgType: "kholodnyi_yar",
-        groundColor: "#2e3b27"
+        era: 0,
+        shortTitle: "4. Холодний Яр та УНР (1918)",
+        desc: "Ліси Холодного Яру та визвольна боротьба УНР.",
+        name: "Рівень 4: Холодний Яр та УНР (1918)",
+        historyTitle: "1918 рік — Холодний Яр та Українська Народна Республіка",
+        historyText: "Повстанські загони Холодного Яру боронять волю України. Пробийся крізь застави до синьо-жовтого стяга!",
+        sky: ["#232526", "#414345"],
+        ground: "#2e3b27",
+        sceneType: "cossack_kholodnyi",
+        flyingCar: false
+    },
+    {
+        era: 1,
+        shortTitle: "5. АТО та ООС (2014–2021)",
+        desc: "Початок спротиву, блокпости та стійкість українських воїнів.",
+        name: "Рівень 5: АТО / ООС — Східний рубіж",
+        historyTitle: "АТО та ООС — Перші роки незламності",
+        historyText: "Українські захисники тримають оборону та не дають ворогу просунутися далі. Рухайся вперед і долай перешкоди.",
+        sky: ["#37474f", "#78909c"],
+        ground: "#4e5938",
+        sceneType: "modern_ato",
+        flyingCar: false
+    },
+    {
+        era: 1,
+        shortTitle: "6. Війна в Україні (2022–2025)",
+        desc: "Масштабна оборона міст, контрнаступи та визволення земель.",
+        name: "Рівень 6: Війна в Україні — Битва за волю",
+        historyTitle: "Велика війна в Україні — Опір та визволення",
+        historyText: "Від оборони столиці й півдня до звільнення українських міст. Кожен крок наближає перемогу.",
+        sky: ["#263238", "#546e7a"],
+        ground: "#3e4732",
+        sceneType: "modern_war",
+        flyingCar: false
+    },
+    {
+        era: 1,
+        shortTitle: "7. Удар по Кримському мосту",
+        desc: "Визначна операція ураження незаконної переправи ворога.",
+        name: "Рівень 7: Визначна перемога — Кримський міст",
+        historyTitle: "Ураження Кримського мосту — Знакова перемога",
+        historyText: "Точний удар по ворожій логістиці через Керченську протоку! Пройди рубіж та закріпи успіх.",
+        sky: ["#1a237e", "#0288d1"],
+        ground: "#37474f",
+        sceneType: "modern_bridge",
+        flyingCar: false
+    },
+    {
+        era: 1,
+        shortTitle: "8. Дата в Україні: 17.11.2026",
+        desc: "Особлива дата 17.11.2026 в історії України.",
+        name: "Рівень 8: Визначна дата — 17.11.2026",
+        historyTitle: "17.11.2026 — Визначна подія в Україні",
+        historyText: "Сторінка новітньої історії України — 17.11.2026. Пройди шлях цього дня до переможного прапора!",
+        sky: ["#1b3b5a", "#4da6ff"],
+        ground: "#2f4f2f",
+        sceneType: "modern_date_2026",
+        flyingCar: false
+    },
+    {
+        era: 2,
+        shortTitle: "9. Вільне небо Перемоги",
+        desc: "Україна перемогла. Політ над відновленими містами на авто.",
+        name: "Рівень 9: Майбутнє — Політ над вільною Україною",
+        historyTitle: "Україна перемогла — Ера літаючих машин",
+        historyText: "Війна позаду, Україна квітує! Керуй літаючою машиною у чистому небі та збирай бонуси.",
+        sky: ["#0b3d91", "#00b4d8"],
+        ground: "#2d6a4f",
+        sceneType: "future_sky_city",
+        flyingCar: true
+    },
+    {
+        era: 2,
+        shortTitle: "10. Карпати та хмари майбутнього",
+        desc: "Політ на літаючій машині над гірськими хребтами.",
+        name: "Рівень 10: Майбутнє — Карпатські хмари",
+        historyTitle: "Високогір'я вільної України",
+        historyText: "Літаюча машина легко долає повітряні потоки над Карпатами. Маневруй і прямуй до цілі.",
+        sky: ["#162447", "#1f4068"],
+        ground: "#1b4332",
+        sceneType: "future_carpathians",
+        flyingCar: true
+    },
+    {
+        era: 2,
+        shortTitle: "11. Космічний горизонт Києва",
+        desc: "Футуристичний мегаполіс переможеної України.",
+        name: "Рівень 11: Майбутнє — Небесний проспект",
+        historyTitle: "Місто майбутнього — Світло Перемоги",
+        historyText: "Набирай висоту, обходь перешкоди та лети крізь футуристичні арки вільної держави.",
+        sky: ["#2b1055", "#7597de"],
+        ground: "#22333b",
+        sceneType: "future_metropolis",
+        flyingCar: true
+    },
+    {
+        era: 2,
+        shortTitle: "12. Фінал: Зоряний шлях України",
+        desc: "Фінальний політ у майбутньому під синьо-жовтим стягом Перемоги.",
+        name: "Рівень 12: Зоряний шлях — Перемога назавжди",
+        historyTitle: "Зоряний фінал — Непереможна Україна",
+        historyText: "Фінальний політ на літаючій машині крізь хмари слави до золотого сонця вільної України!",
+        sky: ["#091e3a", "#2f80ed"],
+        ground: "#1d3557",
+        sceneType: "future_final",
+        flyingCar: true
     }
 ];
 
-// Малюємо міні-картинки епох у головному меню
-function renderMenuThumbnails() {
-    const thumbs = document.querySelectorAll('.epoch-thumb');
-    thumbs.forEach(th => {
-        const epIdx = parseInt(th.getAttribute('data-epoch'), 10);
-        const tctx = th.getContext('2d');
-        const ep = EPOCHS[epIdx];
-        const w = th.width;
-        const h = th.height;
+let activeEraTab = 0;
 
-        const grad = tctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, ep.skyColor[0]);
-        grad.addColorStop(1, ep.skyColor[1]);
-        tctx.fillStyle = grad;
-        tctx.fillRect(0, 0, w, h);
+function selectEraTab(eraIdx) {
+    activeEraTab = eraIdx;
+    document.querySelectorAll('.era-tab').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.getAttribute('data-era'), 10) === eraIdx);
+    });
+    renderLevelsGrid();
+}
 
-        tctx.fillStyle = "rgba(25, 15, 5, 0.4)";
-        if (ep.farBgType === "fortress_hortytsia") {
-            tctx.fillRect(25, 18, 22, 42);
-            tctx.fillRect(150, 22, 20, 38);
-        } else if (ep.farBgType === "steppe_mounds") {
-            tctx.beginPath();
-            tctx.arc(80, 58, 30, Math.PI, 0);
-            tctx.arc(165, 58, 24, Math.PI, 0);
-            tctx.fill();
-        } else if (ep.farBgType === "baroque_church") {
-            tctx.fillRect(95, 20, 28, 38);
-            tctx.beginPath();
-            tctx.arc(109, 18, 12, 0, Math.PI * 2);
-            tctx.fill();
-        } else {
-            tctx.beginPath();
-            tctx.moveTo(10, 58); tctx.lineTo(55, 16); tctx.lineTo(105, 58);
-            tctx.moveTo(110, 58); tctx.lineTo(165, 20); tctx.lineTo(210, 58);
-            tctx.fill();
-        }
+function renderLevelsGrid() {
+    const grid = document.getElementById('levels-grid');
+    grid.innerHTML = '';
 
-        // Хата
-        tctx.fillStyle = "#e8dcc8";
-        tctx.fillRect(115, 36, 30, 22);
-        tctx.fillStyle = "#7d522b";
-        tctx.beginPath();
-        tctx.moveTo(110, 36); tctx.lineTo(130, 22); tctx.lineTo(150, 36);
-        tctx.fill();
+    LEVELS.forEach((lvl, idx) => {
+        if (lvl.era !== activeEraTab) return;
+        const card = document.createElement('div');
+        card.className = 'level-card';
+        card.onclick = () => startLevel(idx);
 
-        // Земля
-        tctx.fillStyle = ep.groundColor;
-        tctx.fillRect(0, 58, w, 22);
+        const cvs = document.createElement('canvas');
+        cvs.className = 'level-thumb';
+        cvs.width = 220;
+        cvs.height = 54;
+        drawLevelThumbnail(cvs, lvl);
+
+        const info = document.createElement('div');
+        info.className = 'level-info';
+
+        const title = document.createElement('div');
+        title.className = 'level-title';
+        title.innerText = lvl.shortTitle;
+
+        const desc = document.createElement('div');
+        desc.className = 'level-desc';
+        desc.innerText = lvl.desc;
+
+        info.appendChild(title);
+        info.appendChild(desc);
+        card.appendChild(cvs);
+        card.appendChild(info);
+        grid.appendChild(card);
     });
 }
-renderMenuThumbnails();
 
-// ==========================================
-// 3. ЗМІННІ ТА 3D-ГЛИБИНА (Z-ВІСЬ)
-// z = 0 (далекий ряд вглиб екрану)
-// z = 1 (середній ряд)
-// z = 2 (ближній ряд до гравця)
-// ==========================================
-let currentEpoch = 0;
-let gameRunning = false;
-let cameraX = 0;
-let cameraY = 0;
-const GRAVITY = 0.65;
+function drawLevelThumbnail(cvs, lvl) {
+    const tctx = cvs.getContext('2d');
+    const w = cvs.width;
+    const h = cvs.height;
 
-function getGroundYForZ(z) {
-    // Нижня межа екрану містить 3 глибинні смуги
-    const baseFrontGround = canvas.height - 55;
-    if (z === 0) return baseFrontGround - 56; // Далекий ряд (вглиб)
-    if (z === 1) return baseFrontGround - 28; // Середній ряд
-    return baseFrontGround;                 // Ближній ряд (до екрану)
+    const grad = tctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, lvl.sky[0]);
+    grad.addColorStop(1, lvl.sky[1]);
+    tctx.fillStyle = grad;
+    tctx.fillRect(0, 0, w, h);
+
+    if (lvl.sceneType === 'modern_bridge') {
+        tctx.fillStyle = "#546e7a";
+        tctx.fillRect(0, 28, w, 6);
+        tctx.fillStyle = "#ff5722";
+        tctx.beginPath();
+        tctx.arc(135, 28, 10, 0, Math.PI * 2);
+        tctx.fill();
+    } else if (lvl.sceneType === 'modern_date_2026') {
+        tctx.fillStyle = "#0057b7";
+        tctx.fillRect(10, 8, 45, 10);
+        tctx.fillStyle = "#ffd700";
+        tctx.fillRect(10, 18, 45, 10);
+        tctx.fillStyle = "#ffffff";
+        tctx.font = "bold 11px Arial";
+        tctx.fillText("17.11.2026", 120, 22);
+    } else if (lvl.flyingCar) {
+        tctx.fillStyle = "#ffd700";
+        tctx.beginPath();
+        tctx.ellipse(125, 24, 22, 8, 0, 0, Math.PI * 2);
+        tctx.fill();
+        tctx.fillStyle = "#00e5ff";
+        tctx.fillRect(107, 32, 36, 3);
+    } else {
+        tctx.fillStyle = "#e8dcc8";
+        tctx.fillRect(110, 26, 26, 16);
+        tctx.fillStyle = "#7d522b";
+        tctx.beginPath();
+        tctx.moveTo(106, 26); tctx.lineTo(123, 15); tctx.lineTo(140, 26);
+        tctx.fill();
+    }
+
+    tctx.fillStyle = lvl.ground;
+    tctx.fillRect(0, h - 12, w, 12);
 }
 
-function getScaleForZ(z) {
-    if (z === 0) return 0.78;
-    if (z === 1) return 0.92;
-    return 1.06;
+let currentLevelIdx = 0;
+let gameRunning = false;
+let cameraX = 0;
+const GRAVITY = 0.65;
+
+const BASE_PLAYER_W = 52;
+const BASE_PLAYER_H = 88;
+const MAX_SCALE = 1.68; // До кінця рівня стає як здоровий Халк
+
+function getGroundY() {
+    return canvas.height - 52;
 }
 
 let player = {};
 let platforms = [];
-let pushBoxes = [];
+let crates = [];      // Ящики: розбиваються з 2-го удару, вилітають і дають пістоль або серце
+let barrels = [];     // Бочки: котяться, можна ставати зверху, рубаються мечем
 let ladders = [];
 let enemies = [];
 let items = [];
 let projectiles = [];
 let particles = [];
 
-const keys = { left: false, right: false, up: false, down: false, deep: false, front: false };
+const keys = { left: false, right: false, up: false, down: false };
 
-function initLevel(epochIndex) {
-    currentEpoch = epochIndex;
-    const g1 = getGroundYForZ(1);
+function setPlayerScale(newScale) {
+    const clamped = Math.min(MAX_SCALE, Math.max(1.0, newScale));
+    const oldH = player.h;
+    player.scale = clamped;
+    player.w = Math.round(BASE_PLAYER_W * clamped);
+    player.h = Math.round(BASE_PLAYER_H * clamped);
+    if (!player.flyingCar) {
+        player.y -= (player.h - oldH);
+    }
+}
+
+function resetPlayerToBaseSize() {
+    const groundY = getGroundY();
+    player.scale = 1.0;
+    player.kills = 0;
+    player.w = BASE_PLAYER_W;
+    player.h = BASE_PLAYER_H;
+    if (!player.flyingCar) {
+        player.y = groundY - player.h;
+    }
+}
+
+function onEnemyDefeated(en) {
+    player.kills++;
+    const totalEnemies = Math.max(1, enemies.length);
+    // З кожним вбитим стає трохи більшим, і на фінальному вбивстві досягає розміру Халка
+    const progress = Math.min(1, player.kills / totalEnemies);
+    const targetScale = 1.0 + progress * (MAX_SCALE - 1.0);
+    setPlayerScale(targetScale);
+    spawnParticles(en.x + en.w / 2, en.y + en.h / 2, "#32cd32", 18);
+    updateHUD();
+}
+
+function initLevel(levelIdx) {
+    currentLevelIdx = levelIdx;
+    const lvl = LEVELS[levelIdx];
+    const groundY = getGroundY();
 
     player = {
-        name: "Козак",
-        spriteKey: "kozak_hero",
-        x: 120,
-        y: g1 - 88,
-        z: 1, // 0, 1 або 2
-        w: 58,
-        h: 88,
+        name: "Герой",
+        x: 110,
+        y: lvl.flyingCar ? groundY - 150 : groundY - BASE_PLAYER_H,
+        w: BASE_PLAYER_W,
+        h: BASE_PLAYER_H,
+        scale: 1.0,
+        kills: 0,
         vx: 0,
         vy: 0,
-        speed: 5.2,
-        jumpForce: -13.2,
+        speed: lvl.flyingCar ? 6.2 : 5.3,
+        jumpForce: -13.5,
         jumpsLeft: 2,
         facing: 1,
-        hp: 3,
+        hp: 4,
         maxHp: 5,
-        knives: 2,
-        pistolAmmo: 0,
+        knives: 3,
+        pistolAmmo: lvl.flyingCar ? 6 : 2,
         attackTimer: 0,
         invulnTimer: 0,
-        onLadder: false
+        onLadder: false,
+        flyingCar: lvl.flyingCar
     };
 
     cameraX = 0;
-    cameraY = 0;
     projectiles = [];
     particles = [];
 
-    platforms = [
-        { x: 360, y: g1 - 115, z: 1, w: 190, h: 18 },
-        { x: 660, y: g1 - 210, z: 1, w: 230, h: 18 },
-        { x: 1060, y: g1 - 135, z: 0, w: 220, h: 18 },
-        { x: 1420, y: g1 - 220, z: 2, w: 250, h: 18 },
-        { x: 1850, y: g1 - 145, z: 1, w: 230, h: 18 }
-    ];
+    if (lvl.flyingCar) {
+        platforms = [
+            { x: 420, y: groundY - 150, w: 160, h: 14 },
+            { x: 920, y: groundY - 210, w: 180, h: 14 },
+            { x: 1480, y: groundY - 140, w: 180, h: 14 },
+            { x: 1980, y: groundY - 220, w: 180, h: 14 }
+        ];
+        crates = [];
+        barrels = [];
+        ladders = [];
+        enemies = [
+            { x: 640, y: groundY - 190, w: 54, h: 54, vx: 1.8, startX: 560, range: 180, hp: 2, drone: true, defeated: false },
+            { x: 1180, y: groundY - 230, w: 54, h: 54, vx: -2.0, startX: 1060, range: 200, hp: 3, drone: true, defeated: false },
+            { x: 1750, y: groundY - 170, w: 54, h: 54, vx: 2.2, startX: 1620, range: 220, hp: 3, drone: true, defeated: false },
+            { x: 2150, y: groundY - 200, w: 60, h: 60, vx: -1.9, startX: 2020, range: 200, hp: 4, drone: true, defeated: false }
+        ];
+        items = [
+            { x: 490, y: groundY - 190, type: 'pistol', vx: 0, vy: 0, collected: false },
+            { x: 1000, y: groundY - 250, type: 'heart', vx: 0, vy: 0, collected: false },
+            { x: 1560, y: groundY - 180, type: 'knife', vx: 0, vy: 0, collected: false },
+            { x: 2060, y: groundY - 260, type: 'pistol', vx: 0, vy: 0, collected: false }
+        ];
+    } else {
+        platforms = [
+            { x: 360, y: groundY - 115, w: 190, h: 18 },
+            { x: 660, y: groundY - 205, w: 230, h: 18 },
+            { x: 1080, y: groundY - 135, w: 220, h: 18 },
+            { x: 1480, y: groundY - 210, w: 240, h: 18 },
+            { x: 1900, y: groundY - 140, w: 220, h: 18 }
+        ];
 
-    pushBoxes = [
-        { x: 260, y: getGroundYForZ(1) - 54, z: 1, w: 54, h: 54, vy: 0 },
-        { x: 1310, y: getGroundYForZ(2) - 54, z: 2, w: 54, h: 54, vy: 0 }
-    ];
+        // Ящики: розбиваються з 2-го удару, вириваються і випадає пістоль або серце
+        crates = [
+            { x: 270, y: groundY - 52, w: 52, h: 52, hits: 0, maxHits: 2, reward: 'pistol', broken: false, vx: 0, vy: 0, hitCooldown: 0 },
+            { x: 1350, y: groundY - 52, w: 52, h: 52, hits: 0, maxHits: 2, reward: 'heart', broken: false, vx: 0, vy: 0, hitCooldown: 0 },
+            { x: 1720, y: groundY - 52, w: 52, h: 52, hits: 0, maxHits: 2, reward: 'pistol', broken: false, vx: 0, vy: 0, hitCooldown: 0 }
+        ];
 
-    ladders = [
-        { x: 680, y: g1 - 210, z: 1, w: 36, h: 210 },
-        { x: 1870, y: g1 - 145, z: 1, w: 36, h: 145 }
-    ];
+        // Бочки: котяться по землі, на них можна ставати, рубаються мечем
+        barrels = [
+            { x: 460, y: groundY - 46, w: 46, h: 46, vx: -1.6, vy: 0, angle: 0, minX: 320, maxX: 920, chopped: false, hitCooldown: 0 },
+            { x: 1240, y: groundY - 46, w: 46, h: 46, vx: -1.9, vy: 0, angle: 0, minX: 980, maxX: 1680, chopped: false, hitCooldown: 0 },
+            { x: 2020, y: groundY - 46, w: 46, h: 46, vx: -2.1, vy: 0, angle: 0, minX: 1760, maxX: 2320, chopped: false, hitCooldown: 0 }
+        ];
 
-    enemies = [
-        { name: "Російський стрілець", spriteKey: "russian_shooter", x: 560, y: getGroundYForZ(1) - 88, z: 1, w: 58, h: 88, vx: 1.9, startX: 480, range: 160, hp: 2 },
-        { name: "Російський стрілець", spriteKey: "russian_shooter", x: 760, y: g1 - 298, z: 1, w: 58, h: 88, vx: 1.5, startX: 675, range: 140, hp: 2 },
-        { name: "Російський стрілець", spriteKey: "russian_shooter", x: 1160, y: getGroundYForZ(0) - 88, z: 0, w: 58, h: 88, vx: 2.2, startX: 1060, range: 200, hp: 3 },
-        { name: "Російський стрілець", spriteKey: "russian_shooter", x: 1520, y: getGroundYForZ(2) - 308, z: 2, w: 58, h: 88, vx: 2.0, startX: 1430, range: 180, hp: 3 },
-        { name: "Російський стрілець", spriteKey: "russian_shooter", x: 2110, y: getGroundYForZ(1) - 88, z: 1, w: 62, h: 92, vx: 2.4, startX: 1960, range: 240, hp: 4 }
-    ];
+        ladders = [
+            { x: 680, y: groundY - 205, w: 36, h: 205 },
+            { x: 1920, y: groundY - 140, w: 36, h: 140 }
+        ];
 
-    items = [
-        { x: 430, y: g1 - 155, z: 1, type: 'knife', collected: false },
-        { x: 735, y: g1 - 250, z: 1, type: 'pistol', collected: false },
-        { x: 920, y: getGroundYForZ(2) - 38, z: 2, type: 'heart', collected: false },
-        { x: 1130, y: g1 - 175, z: 0, type: 'knife', collected: false },
-        { x: 1530, y: getGroundYForZ(2) - 260, z: 2, type: 'heart', collected: false },
-        { x: 1750, y: getGroundYForZ(0) - 38, z: 0, type: 'pistol', collected: false },
-        { x: 1950, y: g1 - 190, z: 1, type: 'heart', collected: false }
-    ];
+        enemies = [
+            { x: 560, y: groundY - 86, w: 54, h: 86, vx: 1.8, startX: 480, range: 160, hp: 2, drone: false, defeated: false },
+            { x: 760, y: groundY - 291, w: 54, h: 86, vx: 1.5, startX: 675, range: 140, hp: 2, drone: false, defeated: false },
+            { x: 1180, y: groundY - 86, w: 54, h: 86, vx: 2.1, startX: 1080, range: 190, hp: 3, drone: false, defeated: false },
+            { x: 1580, y: groundY - 296, w: 54, h: 86, vx: 2.0, startX: 1490, range: 180, hp: 3, drone: false, defeated: false },
+            { x: 2150, y: groundY - 86, w: 58, h: 90, vx: 2.3, startX: 2000, range: 220, hp: 4, drone: false, defeated: false }
+        ];
 
-    document.getElementById('history-title').innerText = EPOCHS[epochIndex].historyTitle;
-    document.getElementById('history-text').innerText = EPOCHS[epochIndex].historyText;
+        items = [
+            { x: 430, y: groundY - 155, type: 'knife', vx: 0, vy: 0, collected: false },
+            { x: 740, y: groundY - 245, type: 'pistol', vx: 0, vy: 0, collected: false },
+            { x: 960, y: groundY - 38, type: 'heart', vx: 0, vy: 0, collected: false },
+            { x: 1160, y: groundY - 175, type: 'knife', vx: 0, vy: 0, collected: false },
+            { x: 1580, y: groundY - 250, type: 'heart', vx: 0, vy: 0, collected: false }
+        ];
+    }
+
+    document.getElementById('jump-label').innerText = lvl.flyingCar ? "Вгору" : "Стрибок";
+    document.getElementById('history-title').innerText = lvl.historyTitle;
+    document.getElementById('history-text').innerText = lvl.historyText;
     document.getElementById('history-modal').classList.remove('hidden');
     updateHUD();
 }
 
-function startGame(epochIndex) {
+function startLevel(levelIdx) {
     toggleFullscreen();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.remove('hidden');
-    initLevel(epochIndex);
+    initLevel(levelIdx);
 }
 
 function closeHistory() {
@@ -244,32 +452,30 @@ function closeHistory() {
 
 function returnToMenu() {
     gameRunning = false;
+    activeEraTab = LEVELS[currentLevelIdx].era;
+    document.querySelectorAll('.era-tab').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.getAttribute('data-era'), 10) === activeEraTab);
+    });
     document.getElementById('hud').classList.add('hidden');
     document.getElementById('mobile-controls').classList.add('hidden');
     document.getElementById('end-modal').classList.add('hidden');
     document.getElementById('main-menu').classList.remove('hidden');
-    renderMenuThumbnails();
+    renderLevelsGrid();
 }
 
-let zMoveCooldown = 0;
-
-function moveDepth(deltaZ) {
-    if (!gameRunning || player.onLadder || zMoveCooldown > 0) return;
-    const nextZ = player.z + deltaZ;
-    if (nextZ >= 0 && nextZ <= 2) {
-        const oldGround = getGroundYForZ(player.z);
-        const heightAboveGround = oldGround - (player.y + player.h);
-        player.z = nextZ;
-        const newGround = getGroundYForZ(player.z);
-        player.y = newGround - player.h - Math.max(0, heightAboveGround);
-        zMoveCooldown = 14;
-        spawnParticles(player.x + player.w / 2, player.y + player.h, "#d4af37", 6);
-        updateHUD();
-    }
+function goNextLevel() {
+    const nextIdx = (currentLevelIdx + 1) % LEVELS.length;
+    document.getElementById('end-modal').classList.add('hidden');
+    startLevel(nextIdx);
 }
 
-function jump() {
+function jumpOrLift() {
     if (!gameRunning) return;
+    if (player.flyingCar) {
+        player.vy = -7.2;
+        spawnParticles(player.x + player.w / 2, player.y + player.h, "#00e5ff", 6);
+        return;
+    }
     if (player.onLadder) {
         player.onLadder = false;
         player.vy = player.jumpForce;
@@ -283,17 +489,60 @@ function jump() {
     }
 }
 
-function attackSaber() {
+function attackMelee() {
     if (!gameRunning || player.attackTimer > 0) return;
     player.attackTimer = 18;
-    const reach = 82;
+    const reach = Math.round(88 * player.scale);
     const hitX = player.facing === 1 ? player.x + player.w : player.x - reach;
 
+    // 1. Рубаємо бочки мечем
+    barrels.forEach(b => {
+        if (!b.chopped && b.hitCooldown === 0 && rectIntersect(hitX, player.y - 10, reach, player.h + 20, b.x, b.y, b.w, b.h)) {
+            b.chopped = true;
+            spawnParticles(b.x + b.w / 2, b.y + b.h / 2, "#c88a4b", 16);
+        }
+    });
+
+    // 2. Б'ємо ящики: з 2-го удару ящик виривається і дає пістоль або серце життя
+    crates.forEach(c => {
+        if (!c.broken && c.hitCooldown === 0 && rectIntersect(hitX, player.y - 10, reach, player.h + 20, c.x, c.y, c.w, c.h)) {
+            c.hits++;
+            c.hitCooldown = 10;
+            spawnParticles(c.x + c.w / 2, c.y + c.h / 2, "#d2995b", 10);
+
+            if (c.hits === 1) {
+                // Перший удар — ящик здригається та подається вперед
+                c.vx = player.facing * 5.5;
+                c.vy = -4.5;
+            } else if (c.hits >= c.maxHits) {
+                // Другий удар — ящик різко виривається і розбивається, даючи нагороду
+                c.broken = true;
+                c.vx = player.facing * 12.5;
+                c.vy = -8.5;
+                spawnParticles(c.x + c.w / 2, c.y + c.h / 2, "#ffd700", 20);
+
+                items.push({
+                    x: c.x + c.w / 2 - 12,
+                    y: c.y - 10,
+                    type: c.reward,
+                    vx: player.facing * 2.5,
+                    vy: -6.5,
+                    collected: false
+                });
+            }
+        }
+    });
+
+    // 3. Атака по ворогах
     enemies.forEach(en => {
-        if (en.hp > 0 && en.z === player.z && rectIntersect(hitX, player.y, reach, player.h, en.x, en.y, en.w, en.h)) {
-            en.hp -= 2;
+        if (!en.defeated && en.hp > 0 && rectIntersect(hitX, player.y - 10, reach, player.h + 20, en.x, en.y, en.w, en.h)) {
+            en.hp -= 2 * player.scale;
             en.x += player.facing * 26;
-            spawnParticles(en.x + en.w / 2, en.y + 35, "#ff3333", 12);
+            spawnParticles(en.x + en.w / 2, en.y + 30, "#ff3333", 12);
+            if (en.hp <= 0 && !en.defeated) {
+                en.defeated = true;
+                onEnemyDefeated(en);
+            }
         }
     });
 }
@@ -304,9 +553,8 @@ function throwKnife() {
     updateHUD();
     projectiles.push({
         x: player.x + (player.facing === 1 ? player.w : 0),
-        y: player.y + 38,
-        z: player.z,
-        vx: player.facing * 11,
+        y: player.y + player.h * 0.45,
+        vx: player.facing * 11.5,
         vy: -1,
         type: 'knife',
         damage: 1
@@ -317,11 +565,10 @@ function shootPistol() {
     if (!gameRunning || player.pistolAmmo <= 0) return;
     player.pistolAmmo--;
     updateHUD();
-    spawnParticles(player.x + (player.facing === 1 ? player.w + 10 : -10), player.y + 34, "#ffa500", 14);
+    spawnParticles(player.x + (player.facing === 1 ? player.w + 10 : -10), player.y + player.h * 0.42, "#ffa500", 14);
     projectiles.push({
         x: player.x + (player.facing === 1 ? player.w : 0),
-        y: player.y + 34,
-        z: player.z,
+        y: player.y + player.h * 0.42,
         vx: player.facing * 18,
         vy: 0,
         type: 'bullet',
@@ -335,7 +582,7 @@ function spawnParticles(x, y, color, count) {
             x, y,
             vx: (Math.random() - 0.5) * 6,
             vy: (Math.random() - 1) * 5,
-            life: 25,
+            life: 24,
             color
         });
     }
@@ -346,10 +593,7 @@ function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
 }
 
 function update() {
-    if (zMoveCooldown > 0) zMoveCooldown--;
-
-    if (keys.deep) moveDepth(-1);
-    if (keys.front) moveDepth(1);
+    const groundY = getGroundY();
 
     if (keys.left) { player.vx = -player.speed; player.facing = -1; }
     else if (keys.right) { player.vx = player.speed; player.facing = 1; }
@@ -358,79 +602,135 @@ function update() {
     player.x += player.vx;
     if (player.x < 0) player.x = 0;
 
-    const currentGround = getGroundYForZ(player.z);
+    if (player.flyingCar) {
+        if (keys.up) player.vy = -5.2;
+        else if (keys.down) player.vy = 5.2;
+        else player.vy *= 0.86;
 
-    let touchingLadder = false;
-    for (let lad of ladders) {
-        if (lad.z === player.z && rectIntersect(player.x + 12, player.y, player.w - 24, player.h, lad.x, lad.y, lad.w, lad.h)) {
-            touchingLadder = true;
-            if (keys.up || keys.down) {
-                player.onLadder = true;
-                player.jumpsLeft = 2;
+        player.y += player.vy;
+        if (player.y < 36) { player.y = 36; player.vy = 0; }
+        if (player.y + player.h > groundY - 12) { player.y = groundY - 12 - player.h; player.vy = 0; }
+    } else {
+        let touchingLadder = false;
+        for (let lad of ladders) {
+            if (rectIntersect(player.x + 10, player.y, player.w - 20, player.h, lad.x, lad.y, lad.w, lad.h)) {
+                touchingLadder = true;
+                if (keys.up || keys.down) {
+                    player.onLadder = true;
+                    player.jumpsLeft = 2;
+                }
             }
         }
-    }
-    if (!touchingLadder) player.onLadder = false;
+        if (!touchingLadder) player.onLadder = false;
 
-    if (player.onLadder) {
-        player.vy = 0;
-        if (keys.up) player.y -= 4.5;
-        if (keys.down) player.y += 4.5;
-    } else {
-        player.vy += GRAVITY;
-        player.y += player.vy;
-    }
+        if (player.onLadder) {
+            player.vy = 0;
+            if (keys.up) player.y -= 4.5;
+            if (keys.down) player.y += 4.5;
+        } else {
+            player.vy += GRAVITY;
+            player.y += player.vy;
+        }
 
-    if (player.y + player.h >= currentGround) {
-        player.y = currentGround - player.h;
-        player.vy = 0;
-        player.jumpsLeft = 2;
-    }
-
-    for (let plat of platforms) {
-        if (plat.z === player.z && player.vy >= 0 &&
-            player.x + player.w > plat.x && player.x < plat.x + plat.w &&
-            player.y + player.h >= plat.y && player.y + player.h - player.vy <= plat.y + 12) {
-            player.y = plat.y - player.h;
+        if (player.y + player.h >= groundY) {
+            player.y = groundY - player.h;
             player.vy = 0;
             player.jumpsLeft = 2;
         }
-    }
 
-    for (let box of pushBoxes) {
-        const boxGround = getGroundYForZ(box.z);
-        box.vy += GRAVITY;
-        box.y += box.vy;
-        if (box.y + box.h >= boxGround) {
-            box.y = boxGround - box.h;
-            box.vy = 0;
-        }
-
-        if (box.z === player.z) {
+        for (let plat of platforms) {
             if (player.vy >= 0 &&
-                player.x + player.w > box.x + 6 && player.x < box.x + box.w - 6 &&
-                player.y + player.h >= box.y && player.y + player.h - player.vy <= box.y + 12) {
-                player.y = box.y - player.h;
+                player.x + player.w > plat.x && player.x < plat.x + plat.w &&
+                player.y + player.h >= plat.y && player.y + player.h - player.vy <= plat.y + 12) {
+                player.y = plat.y - player.h;
                 player.vy = 0;
                 player.jumpsLeft = 2;
-            } else if (rectIntersect(player.x, player.y, player.w, player.h, box.x, box.y, box.w, box.h)) {
-                if (player.vx > 0 && player.x < box.x) {
-                    box.x += player.speed * 0.65;
-                    player.x = box.x - player.w;
-                } else if (player.vx < 0 && player.x > box.x) {
-                    box.x -= player.speed * 0.65;
-                    player.x = box.x + box.w;
+            }
+        }
+
+        // Бочки: котяться та на них можна ставати зверху
+        for (let b of barrels) {
+            if (b.chopped) continue;
+            if (b.hitCooldown > 0) b.hitCooldown--;
+
+            b.x += b.vx;
+            b.angle += b.vx * 0.05;
+            if (b.x <= b.minX) { b.x = b.minX; b.vx = Math.abs(b.vx); }
+            if (b.x + b.w >= b.maxX) { b.x = b.maxX - b.w; b.vx = -Math.abs(b.vx); }
+
+            b.vy += GRAVITY;
+            b.y += b.vy;
+            if (b.y + b.h >= groundY) {
+                b.y = groundY - b.h;
+                b.vy = 0;
+            }
+
+            // Можна ставати на бочку зверху і їхати разом із нею
+            if (player.vy >= 0 &&
+                player.x + player.w > b.x + 4 && player.x < b.x + b.w - 4 &&
+                player.y + player.h >= b.y && player.y + player.h - player.vy <= b.y + 14) {
+                player.y = b.y - player.h;
+                player.vy = 0;
+                player.jumpsLeft = 2;
+                player.x += b.vx * 0.7;
+            }
+        }
+
+        // Ящики: фізика та рух при ударі
+        for (let c of crates) {
+            if (c.broken) continue;
+            if (c.hitCooldown > 0) c.hitCooldown--;
+
+            c.x += c.vx;
+            c.vx *= 0.86;
+            c.vy += GRAVITY;
+            c.y += c.vy;
+
+            if (c.y + c.h >= groundY) {
+                c.y = groundY - c.h;
+                c.vy = 0;
+            }
+
+            if (player.vy >= 0 &&
+                player.x + player.w > c.x + 5 && player.x < c.x + c.w - 5 &&
+                player.y + player.h >= c.y && player.y + player.h - player.vy <= c.y + 12) {
+                player.y = c.y - player.h;
+                player.vy = 0;
+                player.jumpsLeft = 2;
+            } else if (rectIntersect(player.x, player.y, player.w, player.h, c.x, c.y, c.w, c.h)) {
+                if (player.vx > 0 && player.x < c.x) {
+                    c.x += player.speed * 0.6;
+                    player.x = c.x - player.w;
+                } else if (player.vx < 0 && player.x > c.x) {
+                    c.x -= player.speed * 0.6;
+                    player.x = c.x + c.w;
                 }
             }
         }
     }
 
+    // Предмети (з урахуванням випавших з ящиків)
     for (let item of items) {
-        if (!item.collected && item.z === player.z && rectIntersect(player.x, player.y, player.w, player.h, item.x, item.y, 34, 34)) {
+        if (item.collected) continue;
+        item.x += item.vx || 0;
+        item.vx = (item.vx || 0) * 0.92;
+        if (!player.flyingCar) {
+            item.vy = (item.vy || 0) + 0.35;
+            item.y += item.vy;
+            if (item.y + 30 >= groundY) {
+                item.y = groundY - 30;
+                item.vy = 0;
+            }
+        }
+
+        if (rectIntersect(player.x, player.y, player.w, player.h, item.x, item.y, 34, 34)) {
             item.collected = true;
-            if (item.type === 'heart' && player.hp < player.maxHp) player.hp++;
+            if (item.type === 'heart') {
+                if (player.hp < player.maxHp) player.hp++;
+                else player.hp = player.maxHp;
+            }
             if (item.type === 'knife') player.knives += 3;
-            if (item.type === 'pistol') player.pistolAmmo = 3;
+            if (item.type === 'pistol') player.pistolAmmo += 4;
             spawnParticles(item.x, item.y, "#ffd700", 10);
             updateHUD();
         }
@@ -440,37 +740,59 @@ function update() {
         let p = projectiles[i];
         p.x += p.vx;
         p.y += p.vy;
-        if (p.type === 'knife') p.vy += 0.15;
+        if (p.type === 'knife' && !player.flyingCar) p.vy += 0.14;
 
+        let hitSomething = false;
         for (let en of enemies) {
-            if (en.hp > 0 && en.z === p.z && rectIntersect(p.x, p.y, 16, 10, en.x, en.y, en.w, en.h)) {
+            if (!en.defeated && en.hp > 0 && rectIntersect(p.x, p.y, 16, 10, en.x, en.y, en.w, en.h)) {
                 en.hp -= p.damage;
-                spawnParticles(en.x + 25, en.y + 35, "#ff0000", 10);
-                projectiles.splice(i, 1);
+                spawnParticles(en.x + 25, en.y + 30, "#ff0000", 10);
+                if (en.hp <= 0 && !en.defeated) {
+                    en.defeated = true;
+                    onEnemyDefeated(en);
+                }
+                hitSomething = true;
                 break;
             }
         }
+        if (hitSomething) projectiles.splice(i, 1);
     }
 
     if (player.invulnTimer > 0) player.invulnTimer--;
     if (player.attackTimer > 0) player.attackTimer--;
 
     for (let en of enemies) {
-        if (en.hp <= 0) continue;
+        if (en.defeated || en.hp <= 0) continue;
         en.x += en.vx;
         if (en.x > en.startX + en.range || en.x < en.startX) en.vx *= -1;
 
-        if (en.z === player.z && player.invulnTimer === 0 &&
-            rectIntersect(player.x + 10, player.y + 6, player.w - 20, player.h - 10, en.x + 8, en.y + 6, en.w - 16, en.h - 10)) {
+        if (player.invulnTimer === 0 &&
+            rectIntersect(player.x + 6, player.y + 6, player.w - 12, player.h - 10, en.x + 6, en.y + 6, en.w - 12, en.h - 10)) {
             player.hp--;
             player.invulnTimer = 60;
-            player.vy = -7;
+            if (!player.flyingCar) player.vy = -7;
             updateHUD();
             if (player.hp <= 0) {
                 endLevel(false);
                 return;
             }
         }
+    }
+
+    // Якщо впав у прірву — втрачає життя, отримує нове і знову стає звичайним розміром як спочатку
+    if (!player.flyingCar && player.y > canvas.height + 30) {
+        player.hp--;
+        if (player.hp <= 0) {
+            updateHUD();
+            endLevel(false);
+            return;
+        }
+        player.x = Math.max(80, cameraX + 90);
+        player.vx = 0;
+        player.vy = 0;
+        player.invulnTimer = 60;
+        resetPlayerToBaseSize();
+        updateHUD();
     }
 
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -480,10 +802,7 @@ function update() {
         if (particles[i].life <= 0) particles.splice(i, 1);
     }
 
-    // Камера стежить за героєм по X та по Y (особливо коли козак лізе по драбині або стрибає!)
-    cameraX = Math.max(0, player.x - canvas.width * 0.3);
-    const targetCamY = Math.min(0, player.y - canvas.height * 0.42);
-    cameraY += (targetCamY - cameraY) * 0.14;
+    cameraX = Math.max(0, player.x - canvas.width * 0.28);
 
     if (player.x >= 2350) {
         endLevel(true);
@@ -492,227 +811,255 @@ function update() {
 
 function endLevel(victory) {
     gameRunning = false;
-    document.getElementById('end-title').innerText = victory ? "🏆 Перемога! Слава Україні!" : "💀 Козак поліг у бою";
+    const lvl = LEVELS[currentLevelIdx];
+    document.getElementById('end-title').innerText = victory ? "🏆 Рівень пройдено! Слава Україні!" : "💀 Спробуй ще раз!";
     document.getElementById('end-text').innerText = victory
-        ? `Ви пройшли "${EPOCHS[currentEpoch].name}" та захистили українське село!`
-        : "Не журися, козаче! Спробуй ще раз здолати ворогів.";
+        ? `Ви успішно пройшли "${lvl.name}"! Шаблі про волю — рабів до раю не пускають!`
+        : `На рівні "${lvl.name}" вас зупинили. Спробуйте ще раз!`;
+    document.getElementById('next-level-btn').classList.toggle('hidden', !victory);
     document.getElementById('end-modal').classList.remove('hidden');
 }
 
 function updateHUD() {
-    document.getElementById('hp-bar').innerText = "❤️".repeat(Math.max(0, player.hp));
-    document.getElementById('epoch-label').innerText = EPOCHS[currentEpoch].name;
-    const depthNames = ["Ряд: Вглиб", "Ряд: Середній", "Ряд: До себе"];
-    document.getElementById('depth-label').innerText = depthNames[player.z] || "Ряд: Середній";
-    document.getElementById('knife-count').innerText = `🗡️ Ножі: ${player.knives}`;
-    document.getElementById('pistol-ammo').innerText = player.pistolAmmo > 0
-        ? `🔫 Пістоль: ${player.pistolAmmo}`
-        : `🔫 Пістоль: немає`;
+    const lvl = LEVELS[currentLevelIdx];
+    const hulkTag = player.scale >= 1.55 ? " (ХАЛК!)" : (player.scale > 1.05 ? ` (${player.scale.toFixed(1)}x)` : "");
+    document.getElementById('hp-bar').innerText = "❤️".repeat(Math.max(0, player.hp)) + hulkTag;
+    document.getElementById('level-label').innerText = lvl.shortTitle;
+    document.getElementById('mode-label').innerText = lvl.flyingCar ? "Режим: Літаюча машина" : "Режим: Поверхня";
+    document.getElementById('knife-count').innerText = `${player.knives}`;
+    document.getElementById('pistol-ammo').innerText = `${player.pistolAmmo}`;
 }
 
 function drawBackground() {
-    const epoch = EPOCHS[currentEpoch];
-    const ground1 = getGroundYForZ(1);
+    const lvl = LEVELS[currentLevelIdx];
+    const groundY = getGroundY();
 
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, ground1);
-    skyGrad.addColorStop(0, epoch.skyColor[0]);
-    skyGrad.addColorStop(1, epoch.skyColor[1]);
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+    skyGrad.addColorStop(0, lvl.sky[0]);
+    skyGrad.addColorStop(1, lvl.sky[1]);
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.save();
-    ctx.translate(0, -cameraY * 0.25);
-    ctx.fillStyle = "rgba(20, 15, 10, 0.35)";
-    for (let i = 0; i < 6; i++) {
-        let bx = (i * 550) - (cameraX * 0.2) % 550;
-        if (epoch.farBgType === "fortress_hortytsia") {
-            ctx.fillRect(bx + 100, ground1 - 240, 70, 240);
+    for (let i = 0; i < 8; i++) {
+        let bx = (i * 440) - (cameraX * 0.45);
+        if (bx < -320 || bx > canvas.width + 260) continue;
+
+        if (lvl.sceneType === 'modern_bridge') {
+            ctx.fillStyle = "#546e7a";
+            ctx.fillRect(bx, groundY - 95, 360, 14);
+            ctx.fillRect(bx + 40, groundY - 95, 12, 95);
+            ctx.fillRect(bx + 260, groundY - 95, 12, 95);
+            ctx.fillStyle = "#ff5722";
             ctx.beginPath();
-            ctx.moveTo(bx + 85, ground1 - 240);
-            ctx.lineTo(bx + 135, ground1 - 300);
-            ctx.lineTo(bx + 185, ground1 - 240);
+            ctx.arc(bx + 175, groundY - 95, 22, 0, Math.PI * 2);
             ctx.fill();
-        } else if (epoch.farBgType === "steppe_mounds") {
-            ctx.beginPath();
-            ctx.arc(bx + 200, ground1, 160, Math.PI, 0);
-            ctx.fill();
-        } else if (epoch.farBgType === "baroque_church") {
-            ctx.fillRect(bx + 150, ground1 - 210, 90, 210);
-            ctx.beginPath();
-            ctx.arc(bx + 195, ground1 - 220, 35, 0, Math.PI * 2);
-            ctx.fill();
+        } else if (lvl.sceneType === 'modern_date_2026') {
+            ctx.fillStyle = "rgba(255,255,255,0.16)";
+            ctx.fillRect(bx + 40, groundY - 140, 180, 52);
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 20px Oswald, Arial";
+            ctx.fillText("17.11.2026 • УКРАЇНА", bx + 54, groundY - 107);
+        } else if (lvl.flyingCar) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
+            ctx.fillRect(bx + 50, groundY - 230, 68, 230);
+            ctx.fillRect(bx + 145, groundY - 170, 54, 170);
+            ctx.fillStyle = "#00e5ff";
+            ctx.fillRect(bx + 62, groundY - 205, 44, 6);
+            ctx.fillRect(bx + 62, groundY - 175, 44, 6);
         } else {
+            ctx.fillStyle = "#d9cbb8";
+            ctx.fillRect(bx + 45, groundY - 110, 110, 110);
+            ctx.fillStyle = "#7d522b";
             ctx.beginPath();
-            ctx.moveTo(bx, ground1);
-            ctx.lineTo(bx + 150, ground1 - 260);
-            ctx.lineTo(bx + 320, ground1);
+            ctx.moveTo(bx + 32, groundY - 110);
+            ctx.lineTo(bx + 100, groundY - 155);
+            ctx.lineTo(bx + 168, groundY - 110);
             ctx.fill();
         }
     }
-    ctx.restore();
 
-    // Хати-мазанки на середньому плані
-    ctx.save();
-    ctx.translate(0, -cameraY * 0.5);
-    for (let i = 0; i < 10; i++) {
-        let hx = (i * 420) - (cameraX * 0.5);
-        if (hx < -300 || hx > canvas.width + 200) continue;
-        ctx.fillStyle = "#d9cbb8";
-        ctx.fillRect(hx, ground1 - 125, 120, 85);
-        ctx.fillStyle = "#3b2314";
-        ctx.fillRect(hx + 22, ground1 - 98, 20, 24);
-        ctx.fillRect(hx + 74, ground1 - 98, 20, 24);
-        ctx.fillStyle = "#8c6239";
-        ctx.beginPath();
-        ctx.moveTo(hx - 16, ground1 - 125);
-        ctx.lineTo(hx + 60, ground1 - 172);
-        ctx.lineTo(hx + 136, ground1 - 125);
-        ctx.fill();
-    }
-    ctx.restore();
-
-    // 3 смуги глибини землі (Z=0 вглиб, Z=1 середня, Z=2 ближня)
-    ctx.save();
-    ctx.translate(0, -cameraY);
-    const g0 = getGroundYForZ(0);
-    const g2 = getGroundYForZ(2);
-
-    ctx.fillStyle = epoch.groundColor;
-    ctx.globalAlpha = 0.78;
-    ctx.fillRect(0, g0, canvas.width, 32);
-
-    ctx.globalAlpha = 0.9;
-    ctx.fillRect(0, ground1, canvas.width, 32);
-
-    ctx.globalAlpha = 1.0;
-    ctx.fillRect(0, g2, canvas.width, 24);
-
-    ctx.fillStyle = "#2b1d0e";
-    ctx.fillRect(0, g2 + 24, canvas.width, 160);
-    ctx.restore();
+    ctx.fillStyle = lvl.ground;
+    ctx.fillRect(0, groundY, canvas.width, 28);
+    ctx.fillStyle = "#24170b";
+    ctx.fillRect(0, groundY + 28, canvas.width, canvas.height - groundY);
 }
 
 function draw() {
     drawBackground();
-    const g1 = getGroundYForZ(1);
+    const groundY = getGroundY();
 
     ctx.save();
-    ctx.translate(-cameraX, -cameraY);
+    ctx.translate(-cameraX, 0);
 
-    // Збираємо всі об'єкти у список для сортування по глибині (Z) — від далекого ряду (0) до ближнього (2)
-    const renderList = [];
-
+    // Драбини
     for (let lad of ladders) {
-        renderList.push({ z: lad.z, sortY: lad.y + lad.h, type: 'ladder', obj: lad });
+        ctx.fillStyle = "#6e472b";
+        ctx.fillRect(lad.x, lad.y, 6, lad.h);
+        ctx.fillRect(lad.x + lad.w - 6, lad.y, 6, lad.h);
+        for (let y = lad.y + 15; y < lad.y + lad.h; y += 22) {
+            ctx.fillRect(lad.x, y, lad.w, 5);
+        }
     }
+
+    // Платформи
     for (let plat of platforms) {
-        renderList.push({ z: plat.z, sortY: plat.y + plat.h, type: 'plat', obj: plat });
+        ctx.fillStyle = "#8c583a";
+        ctx.fillRect(plat.x, plat.y - 6, plat.w, 6);
+        ctx.fillStyle = "#4a2c18";
+        ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
     }
-    for (let box of pushBoxes) {
-        renderList.push({ z: box.z, sortY: box.y + box.h, type: 'box', obj: box });
-    }
-    for (let item of items) {
-        if (!item.collected) {
-            renderList.push({ z: item.z, sortY: item.y + 30, type: 'item', obj: item });
-        }
-    }
-    for (let en of enemies) {
-        if (en.hp > 0) {
-            renderList.push({ z: en.z, sortY: en.y + en.h, type: 'enemy', obj: en });
-        }
-    }
-    renderList.push({ z: player.z, sortY: player.y + player.h, type: 'player', obj: player });
 
-    renderList.sort((a, b) => (a.z - b.z) || (a.sortY - b.sortY));
+    // Бочки (котяться, рубаються мечем, підтримують спрайт barrel_sprite.png)
+    for (let b of barrels) {
+        if (b.chopped) continue;
+        ctx.save();
+        ctx.translate(b.x + b.w / 2, b.y + b.h / 2);
+        ctx.rotate(b.angle);
+        if (sprites.barrel && sprites.barrel.loaded) {
+            ctx.drawImage(sprites.barrel, -b.w / 2, -b.h / 2, b.w, b.h);
+        } else {
+            ctx.fillStyle = "#8d4e2a";
+            ctx.beginPath();
+            ctx.arc(0, 0, b.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#2b180a";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.strokeStyle = "#555";
+            ctx.beginPath();
+            ctx.moveTo(-b.w / 2 + 4, -8); ctx.lineTo(b.w / 2 - 4, -8);
+            ctx.moveTo(-b.w / 2 + 4, 8); ctx.lineTo(b.w / 2 - 4, 8);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
 
-    for (let entry of renderList) {
-        const sc = getScaleForZ(entry.z);
-        if (entry.type === 'ladder') {
-            const lad = entry.obj;
-            ctx.fillStyle = "#6e472b";
-            ctx.fillRect(lad.x, lad.y, 6, lad.h);
-            ctx.fillRect(lad.x + lad.w - 6, lad.y, 6, lad.h);
-            for (let y = lad.y + 15; y < lad.y + lad.h; y += 22) {
-                ctx.fillRect(lad.x, y, lad.w, 5);
-            }
-        } else if (entry.type === 'plat') {
-            const plat = entry.obj;
-            ctx.fillStyle = "#8c583a";
-            ctx.fillRect(plat.x, plat.y - 7, plat.w, 7);
-            ctx.fillStyle = "#4a2c18";
-            ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
-        } else if (entry.type === 'box') {
-            const box = entry.obj;
-            ctx.fillStyle = "#9c6635";
-            ctx.fillRect(box.x, box.y, box.w, box.h);
+    // Ящики (розбиваються з 2-го удару, підтримують спрайт crate_sprite.png)
+    for (let c of crates) {
+        if (c.broken) continue;
+        if (sprites.crate && sprites.crate.loaded) {
+            ctx.drawImage(sprites.crate, c.x, c.y, c.w, c.h);
+        } else {
+            ctx.fillStyle = c.hits === 1 ? "#b57238" : "#9c6635";
+            ctx.fillRect(c.x, c.y, c.w, c.h);
             ctx.strokeStyle = "#3b2314";
             ctx.lineWidth = 3;
-            ctx.strokeRect(box.x, box.y, box.w, box.h);
-        } else if (entry.type === 'item') {
-            const item = entry.obj;
-            ctx.font = `${Math.round(25 * sc)}px Arial`;
+            ctx.strokeRect(c.x, c.y, c.w, c.h);
+            if (c.hits === 1) {
+                // Тріщина після 1-го удару
+                ctx.beginPath();
+                ctx.moveTo(c.x + 8, c.y + 8);
+                ctx.lineTo(c.x + c.w / 2, c.y + c.h / 2);
+                ctx.lineTo(c.x + c.w - 10, c.y + c.h - 8);
+                ctx.stroke();
+            }
+        }
+    }
+
+    // Предмети (підтримують pistol_sprite.png, heart_sprite.png, knife_sprite.png)
+    for (let item of items) {
+        if (item.collected) continue;
+        const sprKey = item.type;
+        if (sprites[sprKey] && sprites[sprKey].loaded) {
+            ctx.drawImage(sprites[sprKey], item.x, item.y, 30, 30);
+        } else {
+            ctx.font = "24px Arial";
             let icon = item.type === 'heart' ? "❤️" : (item.type === 'knife' ? "🗡️" : "🔫");
             ctx.fillText(icon, item.x, item.y + 24);
-        } else if (entry.type === 'enemy') {
-            const en = entry.obj;
-            const drawW = en.w * sc;
-            const drawH = en.h * sc;
-            const drawX = en.x + (en.w - drawW) / 2;
-            const drawY = en.y + (en.h - drawH);
+        }
+    }
 
-            let spr = sprites[en.spriteKey];
-            if (spr && spr.loaded) {
-                ctx.save();
-                if (en.vx < 0) {
-                    ctx.translate(drawX + drawW, drawY);
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(spr, 0, 0, drawW, drawH);
-                } else {
-                    ctx.drawImage(spr, drawX, drawY, drawW, drawH);
-                }
-                ctx.restore();
+    // Вороги (підтримують drone_sprite.png та russian_shooter.png)
+    for (let en of enemies) {
+        if (en.defeated || en.hp <= 0) continue;
+        if (en.drone) {
+            if (sprites.drone && sprites.drone.loaded) {
+                ctx.drawImage(sprites.drone, en.x, en.y, en.w, en.h);
             } else {
-                ctx.fillStyle = "#8b0000";
-                ctx.fillRect(drawX, drawY, drawW, drawH);
-            }
-        } else if (entry.type === 'player') {
-            const drawW = player.w * sc;
-            const drawH = player.h * sc;
-            const drawX = player.x + (player.w - drawW) / 2;
-            const drawY = player.y + (player.h - drawH);
-
-            ctx.save();
-            if (player.invulnTimer % 10 > 5) ctx.globalAlpha = 0.5;
-            let pSpr = sprites[player.spriteKey];
-
-            if (pSpr && pSpr.loaded) {
-                if (player.facing === -1) {
-                    ctx.translate(drawX + drawW, drawY);
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(pSpr, 0, 0, drawW, drawH);
-                } else {
-                    ctx.drawImage(pSpr, drawX, drawY, drawW, drawH);
-                }
-            } else {
-                ctx.fillStyle = "#1e5aa8";
-                ctx.fillRect(drawX + 8, drawY + 35, drawW - 16, drawH - 35);
-            }
-
-            if (player.attackTimer > 0) {
-                ctx.strokeStyle = "#e0f7fa";
-                ctx.lineWidth = 5;
+                ctx.fillStyle = "#d32f2f";
                 ctx.beginPath();
-                let sx = player.facing === 1 ? drawX + drawW : drawX;
-                ctx.arc(sx, drawY + drawH * 0.45, 55 * sc, player.facing === 1 ? -1 : 2.1, player.facing === 1 ? 1 : 4.1);
-                ctx.stroke();
+                ctx.arc(en.x + en.w / 2, en.y + en.h / 2, 22, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = "#ffeb3b";
+                ctx.fillRect(en.x + 6, en.y + 6, en.w - 12, 6);
+            }
+        } else if (sprites.enemy && sprites.enemy.loaded) {
+            ctx.save();
+            if (en.vx < 0) {
+                ctx.translate(en.x + en.w, en.y);
+                ctx.scale(-1, 1);
+                ctx.drawImage(sprites.enemy, 0, 0, en.w, en.h);
+            } else {
+                ctx.drawImage(sprites.enemy, en.x, en.y, en.w, en.h);
+            }
+            ctx.restore();
+        } else {
+            ctx.fillStyle = "#8b0000";
+            ctx.fillRect(en.x, en.y, en.w, en.h);
+        }
+    }
+
+    // Герой (росте після кожного вбитого ворога, на фінальному — здоровий як Халк)
+    ctx.save();
+    if (player.invulnTimer % 10 > 5) ctx.globalAlpha = 0.5;
+
+    if (player.flyingCar) {
+        if (sprites.hero && sprites.hero.loaded) {
+            ctx.save();
+            if (player.facing === -1) {
+                ctx.translate(player.x + player.w, player.y - 10);
+                ctx.scale(-1, 1);
+                ctx.drawImage(sprites.hero, 6, 0, player.w - 12, player.h - 22);
+            } else {
+                ctx.drawImage(sprites.hero, player.x + 6, player.y - 10, player.w - 12, player.h - 22);
             }
             ctx.restore();
         }
+        ctx.fillStyle = "#1565c0";
+        ctx.strokeStyle = "#ffd700";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(player.x + player.w / 2, player.y + player.h - 14, Math.round(34 * player.scale), 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(0, 229, 255, 0.75)";
+        ctx.fillRect(player.x + 6, player.y + player.h + 2, 12, 5);
+        ctx.fillRect(player.x + player.w - 18, player.y + player.h + 2, 12, 5);
+    } else {
+        if (sprites.hero && sprites.hero.loaded) {
+            if (player.facing === -1) {
+                ctx.translate(player.x + player.w, player.y);
+                ctx.scale(-1, 1);
+                ctx.drawImage(sprites.hero, 0, 0, player.w, player.h);
+            } else {
+                ctx.drawImage(sprites.hero, player.x, player.y, player.w, player.h);
+            }
+        } else {
+            ctx.fillStyle = player.scale >= 1.55 ? "#2e7d32" : "#1e5aa8";
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+        }
+        // Аура велетня Халка коли виріс на максимум
+        if (player.scale >= 1.55) {
+            ctx.strokeStyle = "#76ff03";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(player.x - 3, player.y - 3, player.w + 6, player.h + 6);
+        }
     }
 
+    if (player.attackTimer > 0) {
+        ctx.strokeStyle = "#e0f7fa";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        let sx = player.facing === 1 ? player.x + player.w : player.x;
+        ctx.arc(sx, player.y + player.h * 0.45, Math.round(52 * player.scale), player.facing === 1 ? -1 : 2.1, player.facing === 1 ? 1 : 4.1);
+        ctx.stroke();
+    }
+    ctx.restore();
+
     for (let p of projectiles) {
-        ctx.fillStyle = p.type === 'knife' ? "#dcdcdc" : "#ffd700";
-        ctx.fillRect(p.x, p.y, p.type === 'knife' ? 18 : 10, 5);
+        ctx.fillStyle = p.type === 'knife' ? "#dcdcdc" : "#00e5ff";
+        ctx.fillRect(p.x, p.y, p.type === 'knife' ? 18 : 12, 5);
     }
 
     for (let pt of particles) {
@@ -721,12 +1068,16 @@ function draw() {
     }
 
     // Прапор фінішу рівня
-    ctx.fillStyle = "#5c3317";
-    ctx.fillRect(2360, g1 - 140, 8, 140);
-    ctx.fillStyle = "#0057b7";
-    ctx.fillRect(2368, g1 - 140, 60, 20);
-    ctx.fillStyle = "#ffd700";
-    ctx.fillRect(2368, g1 - 120, 60, 20);
+    if (sprites.flag && sprites.flag.loaded) {
+        ctx.drawImage(sprites.flag, 2360, groundY - 130, 68, 130);
+    } else {
+        ctx.fillStyle = "#5c3317";
+        ctx.fillRect(2360, groundY - 140, 8, 140);
+        ctx.fillStyle = "#0057b7";
+        ctx.fillRect(2368, groundY - 140, 60, 20);
+        ctx.fillStyle = "#ffd700";
+        ctx.fillRect(2368, groundY - 120, 60, 20);
+    }
 
     ctx.restore();
 }
@@ -750,14 +1101,12 @@ bindTouch('btn-left', 'left');
 bindTouch('btn-right', 'right');
 bindTouch('btn-up', 'up');
 bindTouch('btn-down', 'down');
-bindTouch('btn-deep', 'deep');
-bindTouch('btn-front', 'front');
 
-document.getElementById('btn-jump').addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
-document.getElementById('btn-jump').addEventListener('mousedown', jump);
+document.getElementById('btn-jump').addEventListener('touchstart', (e) => { e.preventDefault(); jumpOrLift(); });
+document.getElementById('btn-jump').addEventListener('mousedown', jumpOrLift);
 
-document.getElementById('btn-saber').addEventListener('touchstart', (e) => { e.preventDefault(); attackSaber(); });
-document.getElementById('btn-saber').addEventListener('mousedown', attackSaber);
+document.getElementById('btn-saber').addEventListener('touchstart', (e) => { e.preventDefault(); attackMelee(); });
+document.getElementById('btn-saber').addEventListener('mousedown', attackMelee);
 
 document.getElementById('btn-knife').addEventListener('touchstart', (e) => { e.preventDefault(); throwKnife(); });
 document.getElementById('btn-knife').addEventListener('mousedown', throwKnife);
@@ -770,10 +1119,8 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
     if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.up = true;
     if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = true;
-    if (e.code === 'KeyQ') keys.deep = true;
-    if (e.code === 'KeyE') keys.front = true;
-    if (e.code === 'Space') jump();
-    if (e.code === 'KeyJ' || e.code === 'KeyZ') attackSaber();
+    if (e.code === 'Space') jumpOrLift();
+    if (e.code === 'KeyJ' || e.code === 'KeyZ') attackMelee();
     if (e.code === 'KeyK' || e.code === 'KeyX') throwKnife();
     if (e.code === 'KeyL' || e.code === 'KeyC') shootPistol();
 });
@@ -783,8 +1130,6 @@ window.addEventListener('keyup', (e) => {
     if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
     if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.up = false;
     if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = false;
-    if (e.code === 'KeyQ') keys.deep = false;
-    if (e.code === 'KeyE') keys.front = false;
 });
 
 function toggleFullscreen() {
@@ -801,3 +1146,5 @@ function toggleFullscreen() {
         }
     }
 }
+
+renderLevelsGrid();

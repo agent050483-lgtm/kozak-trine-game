@@ -50,7 +50,7 @@ html, body {
     justify-content: center;
     align-items: center;
     z-index: 100;
-    padding: 8px 14px;
+    padding: 6px 10px;
 }
 
 .hidden {
@@ -60,14 +60,12 @@ html, body {
 .menu-parchment {
     width: 100%;
     height: 100%;
-    max-width: none;
-    max-height: none;
     background: radial-gradient(circle, #e6cfa3 0%, #c8a468 100%);
     color: #2b180a;
     border: 4px solid #5c3317;
     box-shadow: inset 0 0 24px rgba(92, 51, 23, 0.55);
     border-radius: 10px;
-    padding: 8px 14px;
+    padding: 6px 12px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -79,7 +77,7 @@ html, body {
     color: #2b180a;
     border: 4px solid #5c3317;
     border-radius: 12px;
-    padding: 16px 24px;
+    padding: 14px 20px;
     max-width: 620px;
     width: 92%;
     text-align: center;
@@ -89,40 +87,60 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .menu-parchment h1 {
     font-family: 'Marck Script', cursive;
-    font-size: 1.65rem;
+    font-size: 1.45rem;
     line-height: 1.05;
     color: #8b0000;
     text-shadow: 1px 1px 0px #fff;
 }
 
 .fs-btn {
-    padding: 4px 10px;
-    font-size: 0.78rem;
+    padding: 3px 9px;
+    font-size: 0.75rem;
 }
 
 .subtitle {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: #4a2c11;
     text-align: center;
-    margin: 2px 0 4px 0;
+    margin: 1px 0 3px 0;
 }
 
-.epoch-grid {
+.era-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 5px;
+}
+
+.era-tab {
+    padding: 4px 6px;
+    font-size: 0.74rem;
+    background: rgba(92, 51, 23, 0.85);
+    border-color: #5c3317;
+}
+
+.era-tab.active {
+    background: linear-gradient(to bottom, #9c1f1f, #5e0d0d);
+    border-color: #ffd700;
+    color: #fff3cc;
+}
+
+.levels-grid {
     flex: 1;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    gap: 7px;
+    gap: 6px;
     min-height: 0;
 }
 
-.epoch-card {
-    background: rgba(255, 248, 230, 0.78);
+.level-card {
+    background: rgba(255, 248, 230, 0.82);
     border: 2px solid #5c3317;
     border-radius: 7px;
     padding: 4px 6px;
@@ -134,27 +152,27 @@ html, body {
     overflow: hidden;
 }
 
-.epoch-card:active {
+.level-card:active {
     transform: scale(0.98);
     background: rgba(255, 235, 190, 0.98);
 }
 
-.epoch-thumb {
-    width: 112px;
+.level-thumb {
+    width: 108px;
     height: 100%;
-    max-height: 54px;
+    max-height: 50px;
     flex-shrink: 0;
     border-radius: 4px;
     border: 1px solid #5c3317;
 }
 
-.epoch-info {
+.level-info {
     min-width: 0;
 }
 
-.epoch-title {
+.level-title {
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     color: #7a1212;
     line-height: 1.15;
     white-space: nowrap;
@@ -162,8 +180,8 @@ html, body {
     text-overflow: ellipsis;
 }
 
-.epoch-desc {
-    font-size: 0.66rem;
+.level-desc {
+    font-size: 0.64rem;
     color: #3a200c;
     line-height: 1.15;
     display: -webkit-box;
@@ -174,24 +192,31 @@ html, body {
 
 .modal-parchment h2 {
     font-family: 'Marck Script', cursive;
-    font-size: 1.7rem;
+    font-size: 1.6rem;
     color: #8b0000;
     margin-bottom: 6px;
 }
 
 .modal-parchment p {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     line-height: 1.35;
     margin-bottom: 10px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 button {
     background: linear-gradient(to bottom, #8b1e1e, #5a0f0f);
     color: #f4e4bc;
     border: 2px solid #d4af37;
-    padding: 6px 12px;
+    padding: 5px 11px;
     font-family: 'Oswald', sans-serif;
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     border-radius: 6px;
     cursor: pointer;
     box-shadow: 0 3px 5px rgba(0,0,0,0.4);
@@ -217,18 +242,18 @@ button:active {
 .hud-left, .hud-right {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(43, 24, 10, 0.82);
-    padding: 4px 10px;
+    gap: 7px;
+    background: rgba(43, 24, 10, 0.85);
+    padding: 4px 9px;
     border: 2px solid #d4af37;
     border-radius: 8px;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
 }
 
 .menu-btn {
     pointer-events: auto;
-    padding: 2px 8px;
-    font-size: 0.8rem;
+    padding: 2px 7px;
+    font-size: 0.76rem;
 }
 
 #mobile-controls {
@@ -243,14 +268,14 @@ button:active {
     pointer-events: none;
 }
 
-.dpad, .actions, .dpad-col, .ladder-btns {
+.dpad, .actions, .ladder-btns {
     display: flex;
     gap: 6px;
     pointer-events: auto;
     align-items: center;
 }
 
-.dpad-col, .ladder-btns {
+.ladder-btns {
     flex-direction: column;
     gap: 4px;
 }
@@ -260,45 +285,74 @@ button:active {
     height: 48px;
     font-size: 1.2rem;
     border-radius: 50%;
-    background: rgba(43, 24, 10, 0.78);
+    background: rgba(43, 24, 10, 0.8);
 }
 
-.dpad-col button, .ladder-btns button {
-    width: 52px;
-    height: 32px;
+.ladder-btns button {
+    width: 46px;
+    height: 30px;
     border-radius: 8px;
-    font-size: 0.7rem;
-    padding: 2px 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    font-size: 0.72rem;
+    padding: 2px;
 }
 
 .act-btn {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     background: rgba(139, 30, 30, 0.88);
 }
 
 .act-btn small {
-    font-size: 0.58rem;
+    font-size: 0.56rem;
 }
 
 .main-act {
-    width: 60px;
-    height: 60px;
+    width: 58px;
+    height: 58px;
     border-color: #ffd700;
 }
 
 .jump-act {
-    width: 58px;
-    height: 58px;
+    width: 56px;
+    height: 56px;
     background: rgba(34, 85, 34, 0.88);
+}
+
+.motto-line {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #5a0f0f;
+    letter-spacing: 0.3px;
+}
+
+.modal-motto {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #7a1212;
+    margin-bottom: 6px;
+}
+
+.hud-item-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.hud-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.btn-sprite {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    pointer-events: none;
 }
