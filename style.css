@@ -43,7 +43,7 @@ body {
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 10, 5, 0.85);
+    background: rgba(15, 10, 5, 0.88);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,60 +57,96 @@ body {
 .parchment {
     background: radial-gradient(circle, #e6cfa3 0%, #c8a468 100%);
     color: #2b180a;
-    border: 6px solid #5c3317;
+    border: 5px solid #5c3317;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(92, 51, 23, 0.6);
     border-radius: 12px;
-    padding: 20px 35px;
-    max-width: 650px;
-    width: 90%;
+    padding: 14px 22px;
+    max-width: 780px;
+    width: 94%;
+    max-height: 92vh;
+    overflow-y: auto;
     text-align: center;
-    position: relative;
 }
 
 .parchment h1 {
     font-family: 'Marck Script', cursive;
-    font-size: 2.6rem;
+    font-size: 2.1rem;
     color: #8b0000;
     text-shadow: 1px 1px 0px #fff;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 
 .parchment h2 {
     font-family: 'Marck Script', cursive;
-    font-size: 2rem;
+    font-size: 1.8rem;
     color: #8b0000;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .parchment p {
-    font-size: 1rem;
-    line-height: 1.45;
-    margin-bottom: 15px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 12px;
 }
 
 .subtitle {
-    font-size: 1rem;
-    margin-bottom: 15px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
     color: #4a2c11;
 }
 
-.epoch-select {
+.epoch-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
+}
+
+.epoch-card {
+    background: rgba(255, 248, 230, 0.72);
+    border: 2px solid #5c3317;
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.12s, background 0.12s;
+}
+
+.epoch-card:active {
+    transform: scale(0.97);
+    background: rgba(255, 235, 190, 0.95);
+}
+
+.epoch-thumb {
+    width: 100%;
+    height: 52px;
+    border-radius: 5px;
+    border: 1px solid #5c3317;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.epoch-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #7a1212;
+}
+
+.epoch-desc {
+    font-size: 0.72rem;
+    color: #3a200c;
+    line-height: 1.2;
 }
 
 button {
     background: linear-gradient(to bottom, #8b1e1e, #5a0f0f);
     color: #f4e4bc;
     border: 2px solid #d4af37;
-    padding: 10px 15px;
+    padding: 8px 14px;
     font-family: 'Oswald', sans-serif;
-    font-size: 1rem;
+    font-size: 0.95rem;
     border-radius: 6px;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-    transition: transform 0.1s;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.4);
 }
 
 button:active {
@@ -119,36 +155,38 @@ button:active {
 
 #hud {
     position: fixed;
-    top: 10px;
-    left: 15px;
-    right: 15px;
+    top: 8px;
+    left: 12px;
+    right: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 50;
     pointer-events: none;
+    gap: 8px;
 }
 
 .hud-left, .hud-right {
     display: flex;
     align-items: center;
-    gap: 15px;
-    background: rgba(43, 24, 10, 0.78);
-    padding: 6px 14px;
+    gap: 10px;
+    background: rgba(43, 24, 10, 0.82);
+    padding: 5px 11px;
     border: 2px solid #d4af37;
     border-radius: 8px;
+    font-size: 0.85rem;
 }
 
 .menu-btn {
     pointer-events: auto;
-    padding: 2px 10px;
+    padding: 2px 9px;
 }
 
 #mobile-controls {
     position: fixed;
-    bottom: 15px;
-    left: 20px;
-    right: 20px;
+    bottom: 10px;
+    left: 14px;
+    right: 14px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -156,57 +194,62 @@ button:active {
     pointer-events: none;
 }
 
-.dpad, .actions {
+.dpad, .actions, .dpad-col, .ladder-btns {
     display: flex;
-    gap: 10px;
+    gap: 7px;
     pointer-events: auto;
     align-items: center;
 }
 
-.ladder-btns {
-    display: flex;
+.dpad-col, .ladder-btns {
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
 }
 
 .dpad button {
-    width: 55px;
-    height: 55px;
-    font-size: 1.4rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
     border-radius: 50%;
-    background: rgba(43, 24, 10, 0.72);
+    background: rgba(43, 24, 10, 0.78);
 }
 
-.ladder-btns button {
-    width: 45px;
-    height: 40px;
-    font-size: 1rem;
+.dpad-col button, .ladder-btns button {
+    width: 54px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    padding: 2px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .act-btn {
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 1.2rem;
-    background: rgba(139, 30, 30, 0.85);
+    font-size: 1.1rem;
+    background: rgba(139, 30, 30, 0.88);
 }
 
 .act-btn small {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
 }
 
 .main-act {
-    width: 68px;
-    height: 68px;
+    width: 62px;
+    height: 62px;
     border-color: #ffd700;
 }
 
 .jump-act {
-    width: 65px;
-    height: 65px;
-    background: rgba(34, 85, 34, 0.85);
+    width: 60px;
+    height: 60px;
+    background: rgba(34, 85, 34, 0.88);
 }

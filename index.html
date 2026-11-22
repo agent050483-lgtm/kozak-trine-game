@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Шлях Козака: Крізь Віки</title>
+    <title>Шлях Козака: Крізь Віки (2.5D / 3D Глибина)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,15 +14,36 @@
         </div>
     </div>
 
+    <!-- Козацьке меню з малюнками епох та історичним описом -->
     <div id="main-menu" class="overlay">
-        <div class="parchment">
+        <div class="parchment menu-parchment">
             <h1>⚔️ Шлях Козака ⚔️</h1>
-            <p class="subtitle">Хроніки української звитяги (2.5D Платформер)</p>
-            <div class="epoch-select">
-                <button onclick="startGame(0)">I. Запорозька Січ (1556)</button>
-                <button onclick="startGame(1)">II. Хмельниччина (1648)</button>
-                <button onclick="startGame(2)">III. Руїна та Мазепа (1709)</button>
-                <button onclick="startGame(3)">IV. Холодний Яр та УНР (1918)</button>
+            <p class="subtitle">Оберіть історичну епоху • Рух вліво/вправо, вглиб/на себе (Z), стрибки, шабля, ножі й пістоль</p>
+
+            <div class="epoch-grid">
+                <div class="epoch-card" onclick="startGame(0)">
+                    <canvas class="epoch-thumb" data-epoch="0" width="220" height="80"></canvas>
+                    <div class="epoch-title">I. Запорозька Січ (1556)</div>
+                    <div class="epoch-desc">Байда Вишневецький, Мала Хортиця, перші укріплення та оборона українського села.</div>
+                </div>
+
+                <div class="epoch-card" onclick="startGame(1)">
+                    <canvas class="epoch-thumb" data-epoch="1" width="220" height="80"></canvas>
+                    <div class="epoch-title">II. Хмельниччина (1648)</div>
+                    <div class="epoch-desc">Визвольна війна під проводом Богдана Хмельницького, козацькі табори та степові походи.</div>
+                </div>
+
+                <div class="epoch-card" onclick="startGame(2)">
+                    <canvas class="epoch-thumb" data-epoch="2" width="220" height="80"></canvas>
+                    <div class="epoch-title">III. Руїна та Мазепа (1709)</div>
+                    <div class="epoch-desc">Козацьке бароко, собори Гетьманщини та боротьба за державну волю України.</div>
+                </div>
+
+                <div class="epoch-card" onclick="startGame(3)">
+                    <canvas class="epoch-thumb" data-epoch="3" width="220" height="80"></canvas>
+                    <div class="epoch-title">IV. Холодний Яр та УНР (1918)</div>
+                    <div class="epoch-desc">Повстанський рух Холодного Яру, ліси та відстоювання Української Народної Республіки.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -47,6 +68,7 @@
         <div class="hud-left">
             <div id="hp-bar">❤️❤️❤️</div>
             <div id="epoch-label">Епоха I</div>
+            <div id="depth-label">Ряд: Середній</div>
         </div>
         <div class="hud-right">
             <span id="knife-count">🗡️ Ножі: 2</span>
@@ -59,6 +81,10 @@
 
     <div id="mobile-controls" class="hidden">
         <div class="dpad">
+            <div class="dpad-col">
+                <button id="btn-deep" title="Вглиб екрану">⤒<small>Вглиб</small></button>
+                <button id="btn-front" title="До себе">⤓<small>До себе</small></button>
+            </div>
             <button id="btn-left">◀</button>
             <button id="btn-right">▶</button>
             <div class="ladder-btns">
