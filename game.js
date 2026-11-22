@@ -38,19 +38,19 @@ for (let key in SPRITE_PATHS) {
 // ЗВУКИ ТА МЕЛОДІЇ ПІД КОЖНУ ЕПОХУ
 // ==========================================
 const SFX_PATHS = {
-    saber: 'sounds/saber.wav',
-    pistol: 'sounds/pistol.wav',
-    knife: 'sounds/knife.wav',
-    crate_break: 'sounds/crate_break.wav',
-    pickup: 'sounds/pickup.wav',
-    jump: 'sounds/jump.wav',
-    enemy_hit: 'sounds/enemy_hit.wav'
+    saber: 'saber.wav',
+    pistol: 'pistol.wav',
+    knife: 'knife.wav',
+    crate_break: 'crate_break.wav',
+    pickup: 'pickup.wav',
+    jump: 'jump.wav',
+    enemy_hit: 'enemy_hit.wav'
 };
 
 const ERA_BGM = {
-    0: 'sounds/bgm_cossack.wav', // Епоха 1: Козацький похідний мотив
-    1: 'sounds/bgm_modern.wav',  // Епоха 2: Сучасність та Війна
-    2: 'sounds/bgm_future.wav'   // Епоха 3: Переможне Майбутнє
+    0: 'bgm_cossack.wav', // Епоха 1: Козацький похідний мотив
+    1: 'bgm_modern.wav',  // Епоха 2: Сучасність та Війна
+    2: 'bgm_future.wav'   // Епоха 3: Переможне Майбутнє
 };
 
 const sfxPool = {};
