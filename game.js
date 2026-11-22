@@ -13,6 +13,13 @@ resize();
 // ==========================================
 const SPRITE_PATHS = {
     hero: 'hero_sprite.png',
+    hero_attack_0: 'hero_attack_0.png',
+    hero_attack_1: 'hero_attack_1.png',
+    hero_attack_2: 'hero_attack_2.png',
+    hero_attack_3: 'hero_attack_3.png',
+    hero_attack_4: 'hero_attack_4.png',
+    hero_attack_5: 'hero_attack_5.png',
+    bg_village: 'ukraine_village_bg.jpg',
     enemy_era0: 'russian_shooter.png', // Ворог 1-го етапу (Козацька доба)
     enemy_era1: 'modern_enemy.png',    // Ворог 2-го етапу (Сучасність та Війна)
     enemy_era2: 'future_enemy.png',    // Ворог 3-го етапу (Переможне Майбутнє)
@@ -38,19 +45,19 @@ for (let key in SPRITE_PATHS) {
 // ЗВУКИ ТА МЕЛОДІЇ ПІД КОЖНУ ЕПОХУ
 // ==========================================
 const SFX_PATHS = {
-    saber: 'saber.wav',
-    pistol: 'pistol.wav',
-    knife: 'knife.wav',
-    crate_break: 'crate_break.wav',
-    pickup: 'pickup.wav',
-    jump: 'jump.wav',
-    enemy_hit: 'enemy_hit.wav'
+    saber: 'sounds/saber.wav',
+    pistol: 'sounds/pistol.wav',
+    knife: 'sounds/knife.wav',
+    crate_break: 'sounds/crate_break.wav',
+    pickup: 'sounds/pickup.wav',
+    jump: 'sounds/jump.wav',
+    enemy_hit: 'sounds/enemy_hit.wav'
 };
 
 const ERA_BGM = {
-    0: 'bgm_cossack.wav', // Епоха 1: Козацький похідний мотив
-    1: 'bgm_modern.wav',  // Епоха 2: Сучасність та Війна
-    2: 'bgm_future.wav'   // Епоха 3: Переможне Майбутнє
+    0: 'sounds/bgm_cossack.wav', // Епоха 1: Козацький похідний мотив
+    1: 'sounds/bgm_modern.wav',  // Епоха 2: Сучасність та Війна
+    2: 'sounds/bgm_future.wav'   // Епоха 3: Переможне Майбутнє
 };
 
 const sfxPool = {};
@@ -789,7 +796,7 @@ function jumpOrLift() {
 
 function attackMelee() {
     if (!gameRunning || player.attackTimer > 0) return;
-    player.attackTimer = 18;
+    player.attackTimer = 24;
     playSfx('saber');
     const reach = Math.round(115 * player.scale);
     const hitX = player.facing === 1 ? player.x + player.w : player.x - reach;
@@ -1132,58 +1139,213 @@ function updateHUD() {
     document.getElementById('pistol-ammo').innerText = `${player.pistolAmmo}`;
 }
 
+function drawPoppy(ctx, x, y, sway) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(sway);
+    ctx.strokeStyle = "#2e7d32";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -14);
+    ctx.stroke();
+
+    ctx.fillStyle = "#e51c23";
+    ctx.beginPath();
+    ctx.arc(-3, -15, 4.2, 0, Math.PI * 2);
+    ctx.arc(3, -15, 4.2, 0, Math.PI * 2);
+    ctx.arc(0, -18, 4.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#1b1b1b";
+    ctx.beginPath();
+    ctx.arc(0, -15, 2.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawChicken(ctx, x, y, dir, stepPhase) {
+    ctx.save();
+    ctx.translate(x, y);
+    if (dir < 0) ctx.scale(-1, 1);
+    const bob = Math.abs(Math.sin(stepPhase)) * 2.5;
+    ctx.translate(0, -bob);
+
+    // Лапки
+    ctx.strokeStyle = "#e68a00";
+    ctx.lineWidth = 2;
+    const legSwing = Math.sin(stepPhase) * 4;
+    ctx.beginPath();
+    ctx.moveTo(-2, -6); ctx.lineTo(-2 + legSwing, 0);
+    ctx.moveTo(3, -6); ctx.lineTo(3 - legSwing, 0);
+    ctx.stroke();
+
+    // Тіло курки
+    ctx.fillStyle = "#fff8e7";
+    ctx.strokeStyle = "#5d4037";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.ellipse(0, -11, 9, 6.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Голова та гребінець
+    ctx.beginPath();
+    ctx.arc(7, -17, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#d32f2f";
+    ctx.beginPath();
+    ctx.arc(7, -22, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Дзьоб
+    ctx.fillStyle = "#ffb300";
+    ctx.beginPath();
+    ctx.moveTo(12, -18); ctx.lineTo(16, -16); ctx.lineTo(12, -14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawCat(ctx, x, y, dir, walkPhase, colorHex) {
+    ctx.save();
+    ctx.translate(x, y);
+    if (dir < 0) ctx.scale(-1, 1);
+
+    // Хвіст
+    ctx.strokeStyle = colorHex;
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    ctx.moveTo(-8, -9);
+    ctx.quadraticCurveTo(-15, -15 + Math.sin(walkPhase) * 4, -13, -21);
+    ctx.stroke();
+
+    // Лапи
+    const l1 = Math.sin(walkPhase) * 3.5;
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(-5, -5); ctx.lineTo(-5 + l1, 0);
+    ctx.moveTo(5, -5); ctx.lineTo(5 - l1, 0);
+    ctx.stroke();
+
+    // Тулуб
+    ctx.fillStyle = colorHex;
+    ctx.beginPath();
+    ctx.ellipse(0, -8, 9, 5.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Голова і вушка
+    ctx.beginPath();
+    ctx.arc(7, -14, 5.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(4, -18); ctx.lineTo(5, -23); ctx.lineTo(8, -19);
+    ctx.moveTo(8, -19); ctx.lineTo(10, -23); ctx.lineTo(11, -18);
+    ctx.fill();
+
+    // Очі
+    ctx.fillStyle = "#76ff03";
+    ctx.fillRect(8, -15, 2, 2);
+    ctx.restore();
+}
+
 function drawBackground() {
     const lvl = LEVELS[currentLevelIdx];
     const groundY = getGroundY();
 
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
-    skyGrad.addColorStop(0, lvl.sky[0]);
-    skyGrad.addColorStop(1, lvl.sky[1]);
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Основний фон із прикріпленого українського пейзажу (хати під соломою, вітряки, пшеничні поля)
+    if (sprites.bg_village && sprites.bg_village.loaded) {
+        const bgW = canvas.width;
+        const bgH = groundY + 6;
+        const scrollOffset = ((cameraX * 0.35) % bgW + bgW) % bgW;
+        ctx.drawImage(sprites.bg_village, -scrollOffset, 0, bgW, bgH);
+        ctx.drawImage(sprites.bg_village, bgW - scrollOffset, 0, bgW, bgH);
+    } else {
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+        skyGrad.addColorStop(0, lvl.sky[0]);
+        skyGrad.addColorStop(1, lvl.sky[1]);
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-    for (let i = 0; i < 8; i++) {
-        let bx = (i * 440) - (cameraX * 0.45);
+    // Додаткові тематичні акценти по ходу руху (кримський міст або дата 17.11.2026 на відповідних рівнях)
+    for (let i = 0; i < 6; i++) {
+        let bx = (i * 560) - (cameraX * 0.55);
         if (bx < -320 || bx > canvas.width + 260) continue;
 
         if (lvl.sceneType === 'modern_bridge') {
             ctx.fillStyle = "#546e7a";
             ctx.fillRect(bx, groundY - 95, 360, 14);
-            ctx.fillRect(bx + 40, groundY - 95, 12, 95);
-            ctx.fillRect(bx + 260, groundY - 95, 12, 95);
             ctx.fillStyle = "#ff5722";
             ctx.beginPath();
             ctx.arc(bx + 175, groundY - 95, 22, 0, Math.PI * 2);
             ctx.fill();
         } else if (lvl.sceneType === 'modern_date_2026') {
-            ctx.fillStyle = "rgba(255,255,255,0.16)";
-            ctx.fillRect(bx + 40, groundY - 140, 180, 52);
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = "rgba(25, 45, 75, 0.72)";
+            ctx.fillRect(bx + 40, groundY - 125, 210, 44);
+            ctx.strokeStyle = "#ffd700";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(bx + 40, groundY - 125, 210, 44);
+            ctx.fillStyle = "#fff8dc";
             ctx.font = "bold 20px Oswald, Arial";
-            ctx.fillText("17.11.2026 • УКРАЇНА", bx + 54, groundY - 107);
-        } else if (lvl.flyingCar) {
-            ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
-            ctx.fillRect(bx + 50, groundY - 230, 68, 230);
-            ctx.fillRect(bx + 145, groundY - 170, 54, 170);
-            ctx.fillStyle = "#00e5ff";
-            ctx.fillRect(bx + 62, groundY - 205, 44, 6);
-            ctx.fillRect(bx + 62, groundY - 175, 44, 6);
-        } else {
-            ctx.fillStyle = "#d9cbb8";
-            ctx.fillRect(bx + 45, groundY - 110, 110, 110);
-            ctx.fillStyle = "#7d522b";
-            ctx.beginPath();
-            ctx.moveTo(bx + 32, groundY - 110);
-            ctx.lineTo(bx + 100, groundY - 155);
-            ctx.lineTo(bx + 168, groundY - 110);
-            ctx.fill();
+            ctx.fillText("17.11.2026 • УКРАЇНА", bx + 54, groundY - 96);
         }
     }
 
-    ctx.fillStyle = lvl.ground;
-    ctx.fillRect(0, groundY, canvas.width, 28);
-    ctx.fillStyle = "#24170b";
-    ctx.fillRect(0, groundY + 28, canvas.width, canvas.height - groundY);
+    // Тин з палок, кущі, трави України та маки вздовж шляху
+    const nowSec = performance.now() * 0.003;
+    for (let seg = 0; seg < 16; seg++) {
+        const sx = seg * 180 - cameraX;
+        if (sx < -220 || sx > canvas.width + 220) continue;
+
+        // Тин з дерев'яних палок на кожному другому відрізку
+        if (seg % 2 === 0) {
+            ctx.fillStyle = "#7a4924";
+            for (let p = 0; p < 7; p++) {
+                ctx.fillRect(sx + p * 14, groundY - 26, 7, 26);
+            }
+            ctx.fillStyle = "#5c3417";
+            ctx.fillRect(sx - 2, groundY - 20, 98, 4);
+            ctx.fillRect(sx - 2, groundY - 9, 98, 4);
+        }
+
+        // Кущ та трави України
+        ctx.fillStyle = "#2e6f28";
+        ctx.beginPath();
+        ctx.arc(sx + 115, groundY - 6, 16, Math.PI, 0);
+        ctx.arc(sx + 132, groundY - 4, 12, Math.PI, 0);
+        ctx.fill();
+
+        const sway = Math.sin(nowSec + seg) * 0.14;
+        drawPoppy(ctx, sx + 32, groundY, sway);
+        drawPoppy(ctx, sx + 146, groundY, -sway);
+
+        // Кури бігають по двору/стежці
+        if (seg % 3 === 0) {
+            const cDir = Math.sin(nowSec * 0.6 + seg) >= 0 ? 1 : -1;
+            const cx = sx + 60 + Math.sin(nowSec * 0.6 + seg) * 28;
+            drawChicken(ctx, cx, groundY, cDir, nowSec * 6 + seg);
+        }
+
+        // Коти проходять / бігають
+        if (seg % 4 === 1) {
+            const catDir = Math.cos(nowSec * 0.5 + seg) >= 0 ? 1 : -1;
+            const catX = sx + 95 + Math.cos(nowSec * 0.5 + seg) * 26;
+            const catColor = seg % 8 === 1 ? "#ff8f00" : "#455a64";
+            drawCat(ctx, catX, groundY, catDir, nowSec * 5 + seg, catColor);
+        }
+    }
+
+    // Земля з травою зверху та родючим ґрунтом знизу
+    ctx.fillStyle = "#4b8b3b";
+    ctx.fillRect(0, groundY, canvas.width, 10);
+    ctx.fillStyle = "#6d4423";
+    ctx.fillRect(0, groundY + 10, canvas.width, 20);
+    ctx.fillStyle = "#2b190c";
+    ctx.fillRect(0, groundY + 30, canvas.width, canvas.height - groundY);
 }
 
 function draw() {
@@ -1313,13 +1475,29 @@ function draw() {
         ctx.fillRect(player.x + 10, player.y + player.h + 2, 16, 6);
         ctx.fillRect(player.x + player.w - 26, player.y + player.h + 2, 16, 6);
     } else {
-        if (sprites.hero && sprites.hero.loaded) {
+        let activeSprite = sprites.hero;
+        if (player.attackTimer > 0) {
+            const elapsed = 24 - player.attackTimer;
+            const frameIdx = Math.min(5, Math.floor(elapsed / 4));
+            const atkSpr = sprites[`hero_attack_${frameIdx}`];
+            if (atkSpr && atkSpr.loaded) {
+                activeSprite = atkSpr;
+            }
+        }
+
+        // Малюємо спрайт так, щоб нижній край кадрів торкався player.y + player.h (землі або платформи)
+        const drawW = Math.round(player.w * 1.28);
+        const drawH = Math.round(player.h * 1.12);
+        const drawX = player.x + Math.round((player.w - drawW) / 2);
+        const drawY = (player.y + player.h) - drawH;
+
+        if (activeSprite && activeSprite.loaded) {
             if (player.facing === -1) {
-                ctx.translate(player.x + player.w, player.y);
+                ctx.translate(drawX + drawW, drawY);
                 ctx.scale(-1, 1);
-                ctx.drawImage(sprites.hero, 0, 0, player.w, player.h);
+                ctx.drawImage(activeSprite, 0, 0, drawW, drawH);
             } else {
-                ctx.drawImage(sprites.hero, player.x, player.y, player.w, player.h);
+                ctx.drawImage(activeSprite, drawX, drawY, drawW, drawH);
             }
         } else {
             ctx.fillStyle = player.scale >= 1.48 ? "#2e7d32" : "#1e5aa8";
@@ -1330,15 +1508,6 @@ function draw() {
             ctx.lineWidth = 2.5;
             ctx.strokeRect(player.x - 3, player.y - 3, player.w + 6, player.h + 6);
         }
-    }
-
-    if (player.attackTimer > 0) {
-        ctx.strokeStyle = "#e0f7fa";
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        let sx = player.facing === 1 ? player.x + player.w : player.x;
-        ctx.arc(sx, player.y + player.h * 0.45, Math.round(68 * player.scale), player.facing === 1 ? -1 : 2.1, player.facing === 1 ? 1 : 4.1);
-        ctx.stroke();
     }
     ctx.restore();
 
