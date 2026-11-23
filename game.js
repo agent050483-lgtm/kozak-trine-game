@@ -1169,6 +1169,26 @@ function update() {
         if (player.y < 60) { player.y = 60; player.vy = 0; }
         if (player.y + player.h > groundY - 12) { player.y = groundY - 12 - player.h; player.vy = 0; }
     } else {
+        // Перевірка дверей хат під соломою при натисканні Вгору (як підйом по драбині)
+        if (effUp && cottages && cottages.length > 0) {
+            for (let cot of cottages) {
+                if (!cot.doorOpen && Math.abs((player.x + player.w / 2) - (cot.doorX + cot.doorW / 2)) < 48 &&
+                    Math.abs((player.y + player.h) - (cot.doorY + cot.doorH)) < 44) {
+                    cot.doorOpen = true;
+                    playSfx('pickup');
+                    spawnParticles(cot.doorX + cot.doorW / 2, cot.doorY + cot.doorH / 2, "#ffd700", 16);
+                    items.push({
+                        x: cot.doorX + cot.doorW / 2 - 12,
+                        y: cot.doorY + 12,
+                        type: cot.reward,
+                        vx: (player.facing || 1) * 2.2,
+                        vy: -5.5,
+                        collected: false
+                    });
+                }
+            }
+        }
+
         // Перевірка драбин і канатів
         let touchingClimbable = false;
         for (let lad of ladders) {
