@@ -1,125 +1,42 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a120b">
-    <link rel="manifest" href="manifest.json">
-    <title>Шлях крізь Віки: Україна</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Козак Трай — Гра</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="rotate-warning">
-        <div class="warning-box">
-            <div class="rotate-icon">🇺🇦 🔄 🔱</div>
-            <h2>ПОВЕРНІТЬ ТЕЛЕФОН ГОРИЗОНТАЛЬНО</h2>
-            <p>ДЛЯ ЗРУЧНОЇ ГРИ ПОВЕРНІТЬ ЕКРАН У ГОРИЗОНТАЛЬНЕ ПОЛОЖЕННЯ</p>
-        </div>
+  <div id="rotate-screen" class="rotate-overlay" aria-live="polite">
+    <div class="rotate-card">
+      <div class="rotate-icon">↻</div>
+      <h2>Переверніть телефон</h2>
+      <p>Для комфортної гри поверніть пристрій у горизонтальне положення.</p>
+    </div>
+  </div>
+
+  <div id="game-wrap" class="game-wrap">
+    <canvas id="gameCanvas" width="1280" height="720"></canvas>
+
+    <div class="hud-top">
+      <div class="hud-pill" id="hud-hp">HP: 100</div>
+      <div class="hud-pill" id="hud-era">Епоха: Козаччина</div>
+      <div class="hud-pill" id="hud-score">Очки: 0</div>
     </div>
 
-    <div id="main-menu" class="overlay">
-        <div class="parchment menu-parchment">
-            <div class="vyshyvanka-strip"></div>
-            <div class="menu-top-bar">
-                <div class="title-with-trident">
-                    <span class="ua-trident" aria-hidden="true">🔱</span>
-                    <div>
-                        <h1>⚔️ Шлях крізь Віки: Україна (12 рівнів)</h1>
-                        <div class="motto-line">🇺🇦 «Шаблі про волю • Рабів до раю не пускають» 🌾</div>
-                    </div>
-                </div>
-                <button class="fs-btn" onclick="toggleFullscreen()">⛶ На весь екран</button>
-            </div>
-            <p class="subtitle">Ліво / Право • Драбини та Канати ▲▼ • 4 поверхи вгору • Увага: Горілка інвертує кнопки на 10с!</p>
-
-            <div class="era-tabs">
-                <button class="era-tab active" data-era="0" onclick="selectEraTab(0)">⚔️ I. Козацька доба (1–4)</button>
-                <button class="era-tab" data-era="1" onclick="selectEraTab(1)">🛡️ II. Сучасність та Війна (5–8)</button>
-                <button class="era-tab" data-era="2" onclick="selectEraTab(2)">🚀 III. Переможне Майбутнє (9–12)</button>
-            </div>
-
-            <div id="levels-grid" class="levels-grid"></div>
-            <div class="vyshyvanka-strip"></div>
-            <div class="author-footer">Музика козака ШЕВРОНА • Цю гру написав Вітьок - Хакер !)</div>
-        </div>
+    <div class="controls-layer">
+      <div class="move-pad">
+        <button type="button" id="btn-left" class="ctrl-btn" aria-label="Вліво">◀</button>
+        <button type="button" id="btn-right" class="ctrl-btn" aria-label="Вправо">▶</button>
+      </div>
+      <div class="action-pad">
+        <button type="button" id="btn-jump" class="ctrl-btn" aria-label="Стрибок">▲</button>
+        <button type="button" id="btn-attack" class="ctrl-btn ctrl-btn--accent" aria-label="Атака">⚔</button>
+      </div>
     </div>
+  </div>
 
-    <div id="history-modal" class="overlay hidden">
-        <div class="parchment modal-parchment">
-            <h2 id="history-title">Довідка рівня</h2>
-            <div class="modal-motto">🔱 «Шаблі про волю — рабів до раю не пускають!» 🇺🇦</div>
-            <p id="history-text"></p>
-            <button onclick="closeHistory()">До бою / Польоту!</button>
-        </div>
-    </div>
-
-    <div id="enemy-lore-modal" class="overlay hidden">
-        <div class="parchment modal-parchment enemy-lore-box">
-            <div class="lore-badge">📜 ІСТОРИЧНА ДОВІДКА ПРО ВОРОГА</div>
-            <div class="enemy-lore-content">
-                <img id="enemy-lore-img" src="" alt="Ворог">
-                <div class="enemy-lore-details">
-                    <h2 id="enemy-lore-name">Ворог</h2>
-                    <div id="enemy-lore-country" class="lore-meta"></div>
-                    <div id="enemy-lore-weapon" class="lore-meta"></div>
-                    <p id="enemy-lore-desc"></p>
-                </div>
-            </div>
-            <button onclick="closeEnemyLore()">Продовжити бій ⚔️</button>
-        </div>
-    </div>
-
-    <div id="end-modal" class="overlay hidden">
-        <div class="parchment modal-parchment">
-            <h2 id="end-title">Рівень завершено</h2>
-            <div class="modal-motto">🔱 «Шаблі про волю — рабів до раю не пускають!» 🇺🇦</div>
-            <p id="end-text"></p>
-            <div class="modal-actions">
-                <button id="next-level-btn" onclick="goNextLevel()">Наступний рівень ▶</button>
-                <button onclick="returnToMenu()">Меню рівнів</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="hud" class="hidden">
-        <div class="hud-left">
-            <span class="hud-trident">🔱</span>
-            <div id="hp-bar">❤️❤️❤️❤️</div>
-            <div id="level-label">Рівень 1</div>
-            <div id="mode-label">Епоха: Козацька</div>
-            <div id="drunk-badge" class="hidden" style="background:#b71c1c;color:#fff;padding:2px 8px;border-radius:6px;border:1px solid #ffd700;">🍾 НАВПАКИ: 10с</div>
-        </div>
-        <div class="hud-right">
-            <span class="hud-item-badge"><img id="hud-knife-icon" class="hud-icon" src="knife_sprite.png" alt=""> Ножі: <b id="knife-count">3</b></span>
-            <span class="hud-item-badge"><img id="hud-pistol-icon" class="hud-icon" src="pistol_sprite.png" alt=""> Пістоль: <b id="pistol-ammo">2</b></span>
-            <button id="btn-mute" class="menu-btn" onclick="toggleMute()" title="Звук / Музика">🔊</button>
-            <button class="menu-btn" onclick="toggleFullscreen()" title="Повний екран">⛶</button>
-            <button class="menu-btn" onclick="returnToMenu()" title="Меню">☰</button>
-        </div>
-    </div>
-
-    <canvas id="gameCanvas"></canvas>
-
-    <div id="mobile-controls" class="hidden">
-        <div class="dpad">
-            <button id="btn-left">◀</button>
-            <button id="btn-right">▶</button>
-            <div class="ladder-btns">
-                <button id="btn-up">▲</button>
-                <button id="btn-down">▼</button>
-            </div>
-        </div>
-        <div class="actions">
-            <button id="btn-knife" class="act-btn"><img class="btn-sprite" src="knife_sprite.png" alt=""><small>Ніж</small></button>
-            <button id="btn-pistol" class="act-btn"><img class="btn-sprite" src="pistol_sprite.png" alt=""><small>Вогонь</small></button>
-            <button id="btn-saber" class="act-btn main-act"><img class="btn-sprite" src="saber_sprite.png" alt=""><small>Шабля</small></button>
-            <button id="btn-jump" class="act-btn jump-act">⬆️<small id="jump-label">Стрибок</small></button>
-        </div>
-    </div>
-
-    <script src="game.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
