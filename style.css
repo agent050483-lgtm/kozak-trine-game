@@ -323,10 +323,12 @@ html, body {
 }
 
 .modal-parchment h2 {
-    font-family: 'Marck Script', cursive;
-    font-size: 1.85rem;
+    font-family: 'Oswald', sans-serif;
+    font-size: 2.25rem;
+    font-weight: 700;
     color: #8b0000;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    line-height: 1.15;
 }
 
 .modal-parchment p {
@@ -379,8 +381,15 @@ button:active {
     padding: 5px 11px;
     border: 2px solid #ffd700;
     border-radius: 8px;
-    font-size: 0.92rem;
+    font-size: 0.96rem;
     font-weight: 700;
+}
+
+#level-label {
+    font-size: 1.32rem;
+    color: #ffd700;
+    letter-spacing: 0.4px;
+    text-shadow: 1px 1px 2px #000000;
 }
 
 .hud-trident {

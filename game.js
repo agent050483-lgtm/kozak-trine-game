@@ -1,30 +1,12 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-function syncCanvasAndCamera() {
-    const w = window.innerWidth || document.documentElement.clientWidth || 800;
-    const h = window.innerHeight || document.documentElement.clientHeight || 450;
-    if (w > 0 && h > 0) {
-        canvas.width = w;
-        canvas.height = h;
-    }
-    if (typeof player === 'object' && player && typeof player.y === 'number') {
-        const groundY = getGroundY();
-        if (!player.flyingCar && player.y + player.h > groundY) {
-            player.y = groundY - player.h;
-        }
-        const maxCamY = Math.max(0, groundY + 120 - canvas.height);
-        cameraY = Math.max(0, Math.min(maxCamY, player.y - canvas.height * 0.62));
-    }
-}
 function resize() {
-    syncCanvasAndCamera();
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
-window.addEventListener('resize', syncCanvasAndCamera);
-window.addEventListener('orientationchange', () => setTimeout(syncCanvasAndCamera, 90));
-document.addEventListener('fullscreenchange', () => setTimeout(syncCanvasAndCamera, 90));
-document.addEventListener('webkitfullscreenchange', () => setTimeout(syncCanvasAndCamera, 90));
-syncCanvasAndCamera();
+window.addEventListener('resize', resize);
+resize();
 
 // ==========================================
 // СПРАЙТИ (ПРОСТО ЗАМІНИ АБО ДОКИНЬ ЦІ PNG-ФАЙЛИ В КОРІНЬ ПАПКИ З ГРОЮ)
@@ -688,7 +670,6 @@ let ladders = [];
 let ropes = [];
 let enemies = [];
 let items = [];
-let rafId = null;
 let cottages = [];
 let projectiles = [];
 let particles = [];
@@ -993,9 +974,12 @@ function initLevel(levelIdx) {
     updateHUD();
 }
 
+let levelBannerTimer = 0;
+
 function startLevel(levelIdx) {
+    levelBannerTimer = 150;
     ensureAudioUnlocked();
-    syncCanvasAndCamera();
+    toggleFullscreen();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.remove('hidden');
@@ -1004,12 +988,10 @@ function startLevel(levelIdx) {
 
 function closeHistory() {
     ensureAudioUnlocked();
-    syncCanvasAndCamera();
     document.getElementById('history-modal').classList.add('hidden');
     playEraMusic(LEVELS[currentLevelIdx].era);
     gameRunning = true;
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop);
 }
 
 function returnToMenu() {
@@ -1930,6 +1912,28 @@ function draw() {
         }
     }
 
+    if (levelBannerTimer > 0) {
+        levelBannerTimer--;
+        const alpha = Math.min(1, levelBannerTimer / 35);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const bannerW = Math.min(canvas.width - 60, 740);
+        const bannerH = 68;
+        const bx = (canvas.width - bannerW) / 2;
+        const by = 62;
+        ctx.fillStyle = "rgba(18, 12, 7, 0.86)";
+        ctx.fillRect(bx, by, bannerW, bannerH);
+        ctx.strokeStyle = "#ffd700";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(bx, by, bannerW, bannerH);
+        ctx.fillStyle = "#ffd700";
+        ctx.font = "bold 30px Oswald, Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(lvl.shortTitle || lvl.historyTitle || `Рівень ${currentLevelIdx + 1}`, canvas.width / 2, by + bannerH / 2);
+        ctx.restore();
+    }
+
     // Прапор фінішу рівня
     if (sprites.flag && sprites.flag.loaded) {
         ctx.drawImage(sprites.flag, LEVEL_FINISH_X, groundY - 140, 74, 140);
@@ -1946,13 +1950,10 @@ function draw() {
 }
 
 function gameLoop() {
-    rafId = null;
     if (!gameRunning) return;
     update();
     draw();
-    if (gameRunning) {
-        rafId = requestAnimationFrame(gameLoop);
-    }
+    requestAnimationFrame(gameLoop);
 }
 
 function bindTouch(id, keyName) {
