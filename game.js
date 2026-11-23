@@ -1,12 +1,30 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function syncCanvasAndCamera() {
+    const w = window.innerWidth || document.documentElement.clientWidth || 800;
+    const h = window.innerHeight || document.documentElement.clientHeight || 450;
+    if (w > 0 && h > 0) {
+        canvas.width = w;
+        canvas.height = h;
+    }
+    if (typeof player === 'object' && player && typeof player.y === 'number') {
+        const groundY = getGroundY();
+        if (!player.flyingCar && player.y + player.h > groundY) {
+            player.y = groundY - player.h;
+        }
+        const maxCamY = Math.max(0, groundY + 120 - canvas.height);
+        cameraY = Math.max(0, Math.min(maxCamY, player.y - canvas.height * 0.62));
+    }
 }
-window.addEventListener('resize', resize);
-resize();
+function resize() {
+    syncCanvasAndCamera();
+}
+window.addEventListener('resize', syncCanvasAndCamera);
+window.addEventListener('orientationchange', () => setTimeout(syncCanvasAndCamera, 90));
+document.addEventListener('fullscreenchange', () => setTimeout(syncCanvasAndCamera, 90));
+document.addEventListener('webkitfullscreenchange', () => setTimeout(syncCanvasAndCamera, 90));
+syncCanvasAndCamera();
 
 // ==========================================
 // СПРАЙТИ (ПРОСТО ЗАМІНИ АБО ДОКИНЬ ЦІ PNG-ФАЙЛИ В КОРІНЬ ПАПКИ З ГРОЮ)
@@ -670,6 +688,7 @@ let ladders = [];
 let ropes = [];
 let enemies = [];
 let items = [];
+let rafId = null;
 let cottages = [];
 let projectiles = [];
 let particles = [];
@@ -976,7 +995,7 @@ function initLevel(levelIdx) {
 
 function startLevel(levelIdx) {
     ensureAudioUnlocked();
-    toggleFullscreen();
+    syncCanvasAndCamera();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.remove('hidden');
@@ -985,10 +1004,12 @@ function startLevel(levelIdx) {
 
 function closeHistory() {
     ensureAudioUnlocked();
+    syncCanvasAndCamera();
     document.getElementById('history-modal').classList.add('hidden');
     playEraMusic(LEVELS[currentLevelIdx].era);
     gameRunning = true;
-    requestAnimationFrame(gameLoop);
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(gameLoop);
 }
 
 function returnToMenu() {
@@ -1925,10 +1946,13 @@ function draw() {
 }
 
 function gameLoop() {
+    rafId = null;
     if (!gameRunning) return;
     update();
     draw();
-    requestAnimationFrame(gameLoop);
+    if (gameRunning) {
+        rafId = requestAnimationFrame(gameLoop);
+    }
 }
 
 function bindTouch(id, keyName) {
