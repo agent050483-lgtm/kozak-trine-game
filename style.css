@@ -28,12 +28,41 @@ html, body {
     display: none;
     position: fixed;
     inset: 0;
-    background: #1a120b;
+    background: linear-gradient(180deg, #003973 0%, #1a120b 52%, #5c4300 100%);
     z-index: 9999;
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 20px;
+    padding: 24px;
+}
+
+.warning-box {
+    background: rgba(20, 14, 8, 0.92);
+    border: 4px solid #ffd700;
+    border-radius: 18px;
+    padding: 28px 22px;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.35);
+}
+
+.rotate-icon {
+    font-size: 4.2rem;
+    margin-bottom: 12px;
+}
+
+#rotate-warning h2 {
+    font-size: 2.35rem;
+    line-height: 1.2;
+    color: #ffd700;
+    text-shadow: 2px 2px 0 #0057b7;
+    margin-bottom: 14px;
+    letter-spacing: 0.6px;
+}
+
+#rotate-warning p {
+    font-size: 1.45rem;
+    line-height: 1.35;
+    color: #ffffff;
+    font-weight: 700;
 }
 
 @media screen and (orientation: portrait) {
@@ -65,11 +94,36 @@ html, body {
     border: 4px solid #5c3317;
     box-shadow: inset 0 0 24px rgba(92, 51, 23, 0.55);
     border-radius: 10px;
-    padding: 8px 14px;
+    padding: 6px 14px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
+}
+
+.vyshyvanka-strip {
+    height: 7px;
+    width: 100%;
+    border-radius: 3px;
+    background: repeating-linear-gradient(
+        90deg,
+        #b71c1c 0px, #b71c1c 8px,
+        #1a120b 8px, #1a120b 12px,
+        #ffd700 12px, #ffd700 16px,
+        #0057b7 16px, #0057b7 22px
+    );
+    opacity: 0.88;
+}
+
+.title-with-trident {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ua-trident {
+    font-size: 2rem;
+    filter: drop-shadow(0 1px 2px rgba(0, 87, 183, 0.7));
 }
 
 .modal-parchment {
@@ -77,10 +131,70 @@ html, body {
     color: #2b180a;
     border: 4px solid #5c3317;
     border-radius: 12px;
-    padding: 16px 22px;
-    max-width: 660px;
+    padding: 14px 20px;
+    max-width: 680px;
     width: 94%;
     text-align: center;
+}
+
+.enemy-lore-box {
+    border-color: #ffd700;
+    box-shadow: 0 0 28px rgba(0, 0, 0, 0.8);
+}
+
+.lore-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, #0057b7, #003d82);
+    color: #ffd700;
+    border: 2px solid #ffd700;
+    border-radius: 6px;
+    padding: 3px 12px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.enemy-lore-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+    background: rgba(255, 248, 230, 0.78);
+    border: 2px solid #5c3317;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+}
+
+#enemy-lore-img {
+    width: 92px;
+    height: 124px;
+    object-fit: contain;
+    flex-shrink: 0;
+    background: rgba(43, 24, 10, 0.08);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.enemy-lore-details h2 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.45rem;
+    color: #8b0000;
+    margin-bottom: 4px;
+}
+
+.lore-meta {
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: #1b3b5a;
+    margin-bottom: 3px;
+}
+
+.enemy-lore-details p {
+    font-size: 0.92rem;
+    line-height: 1.32;
+    color: #2b180a;
+    margin-bottom: 0;
 }
 
 .menu-top-bar {
@@ -92,30 +206,30 @@ html, body {
 
 .menu-parchment h1 {
     font-family: 'Marck Script', cursive;
-    font-size: 1.75rem;
-    line-height: 1.08;
+    font-size: 1.72rem;
+    line-height: 1.06;
     color: #8b0000;
     text-shadow: 1px 1px 0px #fff;
 }
 
 .fs-btn {
     padding: 6px 13px;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
 }
 
 .subtitle {
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     font-weight: 700;
     color: #4a2c11;
     text-align: center;
-    margin: 2px 0 5px 0;
+    margin: 1px 0 4px 0;
 }
 
 .era-tabs {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 }
 
 .era-tab {
@@ -127,9 +241,9 @@ html, body {
 }
 
 .era-tab.active {
-    background: linear-gradient(to bottom, #9c1f1f, #5e0d0d);
+    background: linear-gradient(to bottom, #0057b7, #003570);
     border-color: #ffd700;
-    color: #fff3cc;
+    color: #ffd700;
 }
 
 .levels-grid {
@@ -142,30 +256,32 @@ html, body {
 }
 
 .level-card {
-    background: rgba(255, 248, 230, 0.84);
+    background: rgba(255, 248, 230, 0.88);
     border: 2px solid #5c3317;
-    border-radius: 7px;
+    border-radius: 8px;
     padding: 5px 8px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
     min-height: 0;
     overflow: hidden;
+    box-shadow: 0 2px 5px rgba(43, 24, 10, 0.22);
 }
 
 .level-card:active {
     transform: scale(0.98);
     background: rgba(255, 235, 190, 0.98);
+    border-color: #0057b7;
 }
 
 .level-thumb {
-    width: 112px;
+    width: 122px;
     height: 100%;
-    max-height: 52px;
+    max-height: 56px;
     flex-shrink: 0;
-    border-radius: 4px;
-    border: 1px solid #5c3317;
+    border-radius: 5px;
+    border: 2px solid #5c3317;
 }
 
 .level-info {
@@ -174,7 +290,7 @@ html, body {
 
 .level-title {
     font-weight: 700;
-    font-size: 0.92rem;
+    font-size: 0.93rem;
     color: #7a1212;
     line-height: 1.15;
     white-space: nowrap;
@@ -194,14 +310,14 @@ html, body {
 
 .modal-parchment h2 {
     font-family: 'Marck Script', cursive;
-    font-size: 1.9rem;
+    font-size: 1.85rem;
     color: #8b0000;
     margin-bottom: 6px;
 }
 
 .modal-parchment p {
-    font-size: 1.05rem;
-    line-height: 1.4;
+    font-size: 1.02rem;
+    line-height: 1.38;
     margin-bottom: 12px;
 }
 
@@ -245,12 +361,16 @@ button:active {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(43, 24, 10, 0.88);
+    background: rgba(24, 18, 12, 0.9);
     padding: 5px 11px;
-    border: 2px solid #d4af37;
+    border: 2px solid #ffd700;
     border-radius: 8px;
     font-size: 0.92rem;
     font-weight: 700;
+}
+
+.hud-trident {
+    font-size: 1.1rem;
 }
 
 .menu-btn {
@@ -259,11 +379,12 @@ button:active {
     font-size: 0.92rem;
 }
 
+/* ЗБІЛЬШЕНІ КНОПКИ УПРАВЛІННЯ ДЛЯ ЗРУЧНОЇ ГРИ НА ТЕЛЕФОНІ */
 #mobile-controls {
     position: fixed;
-    bottom: 8px;
-    left: 12px;
-    right: 12px;
+    bottom: 10px;
+    left: 14px;
+    right: 14px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -273,72 +394,77 @@ button:active {
 
 .dpad, .actions, .ladder-btns {
     display: flex;
-    gap: 7px;
+    gap: 10px;
     pointer-events: auto;
     align-items: center;
 }
 
 .ladder-btns {
     flex-direction: column;
-    gap: 5px;
+    gap: 7px;
 }
 
 .dpad button {
-    width: 56px;
-    height: 56px;
-    font-size: 1.35rem;
+    width: 68px;
+    height: 68px;
+    font-size: 1.65rem;
     border-radius: 50%;
-    background: rgba(43, 24, 10, 0.85);
+    background: rgba(43, 24, 10, 0.88);
+    border-width: 3px;
 }
 
 .ladder-btns button {
-    width: 52px;
-    height: 35px;
-    border-radius: 8px;
-    font-size: 0.85rem;
+    width: 62px;
+    height: 43px;
+    border-radius: 10px;
+    font-size: 1.05rem;
     padding: 2px;
+    border-width: 2.5px;
 }
 
 .act-btn {
-    width: 58px;
-    height: 58px;
+    width: 68px;
+    height: 68px;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 1.12rem;
-    background: rgba(139, 30, 30, 0.9);
+    font-size: 1.2rem;
+    background: rgba(139, 30, 30, 0.92);
+    border-width: 2.5px;
 }
 
 .act-btn small {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 
 .main-act {
-    width: 66px;
-    height: 66px;
+    width: 78px;
+    height: 78px;
     border-color: #ffd700;
+    border-width: 3px;
 }
 
 .jump-act {
-    width: 64px;
-    height: 64px;
-    background: rgba(34, 85, 34, 0.9);
+    width: 74px;
+    height: 74px;
+    background: rgba(34, 85, 34, 0.92);
+    border-width: 3px;
 }
 
 .motto-line {
     font-size: 0.86rem;
     font-weight: 700;
-    color: #5a0f0f;
+    color: #004799;
     letter-spacing: 0.3px;
 }
 
 .modal-motto {
     font-size: 0.98rem;
     font-weight: 700;
-    color: #7a1212;
+    color: #004799;
     margin-bottom: 6px;
 }
 
@@ -355,8 +481,8 @@ button:active {
 }
 
 .btn-sprite {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
     pointer-events: none;
 }

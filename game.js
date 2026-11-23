@@ -35,6 +35,10 @@ const SPRITE_PATHS = {
     bg_bridge: 'crimean_bridge_bg.jpg',
     bg_sich: 'zaporozhska_sich_bg.jpg',
     flying_car: 'flying_car.png',
+    future_bg_1: 'future_bg_1.jpg',
+    future_bg_2: 'future_bg_2.jpg',
+    future_bg_3: 'future_bg_3.jpg',
+    future_bg_4: 'future_bg_4.jpg',
 
     // Запасні базові спрайти епох
     enemy_era0: 'russian_shooter.png',
@@ -209,37 +213,127 @@ function toggleMute() {
 }
 
 // ==========================================
-// КАТАЛОГ 6 РІЗНИХ ВОРОГІВ НА КОЖЕН БЛОК (ІЗ НАЗВАМИ ФАЙЛІВ СПРАЙТІВ)
+// КАТАЛОГ ВОРОГІВ ІЗ ІСТОРИЧНОЮ ДОВІДКОЮ (З'ЯВЛЯЄТЬСЯ 1 РАЗ ПРИ ПЕРШОМУ ЗНИЩЕННІ)
 // ==========================================
 const ERA_ENEMY_TYPES = {
     0: [
-        { spriteKey: 'enemy_b1_1', fallbackKey: 'enemy_era0', label: 'Яничар-мечник', hp: 2, vx: 1.8, flying: false },
-        { spriteKey: 'enemy_b1_2', fallbackKey: 'enemy_era0', label: 'Яничар-стрілець', hp: 2, vx: -1.6, flying: false },
-        { spriteKey: 'enemy_b1_3', fallbackKey: 'enemy_era0', label: 'Ординець-нападник', hp: 2, vx: 2.3, flying: false },
-        { spriteKey: 'enemy_b1_4', fallbackKey: 'enemy_era0', label: 'Крилатий гусар', hp: 3, vx: -2.0, flying: false },
-        { spriteKey: 'enemy_b1_5', fallbackKey: 'enemy_era0', label: 'Рейтар-пікінер', hp: 3, vx: 1.7, flying: false },
-        { spriteKey: 'enemy_b1_6', fallbackKey: 'enemy_era0', label: 'Стрілець-бердишник', hp: 4, vx: -2.1, flying: false }
+        {
+            spriteKey: 'enemy_b1_2', fallbackKey: 'enemy_era0', label: 'Яничар-стрілець', hp: 2, vx: -1.6, flying: false,
+            country: 'Османська імперія',
+            weapon: 'Фітільний мушкет, ятаган та кинджал',
+            lore: 'Елітна регулярна піхота Османської імперії. Яничари славилися влучною стрільбою з довгих рушниць та запеклим ближнім боєм.'
+        },
+        {
+            spriteKey: 'enemy_b1_3', fallbackKey: 'enemy_era0', label: 'Ординець-нападник', hp: 2, vx: 2.2, flying: false,
+            country: 'Кримське ханство / Ногайська орда',
+            weapon: 'Складений лук, крива шабля та круглий щит',
+            lore: 'Швидкий степовий воїн у ламелярному обладунку. Здійснював раптові набіги на українські землі та бився верхи і пішки.'
+        },
+        {
+            spriteKey: 'enemy_b1_4', fallbackKey: 'enemy_era0', label: 'Крилатий гусар', hp: 3, vx: -2.0, flying: false,
+            country: 'Річ Посполита',
+            weapon: 'Довга піка-копія, шабля та кончар',
+            lore: 'Важка ударна кавалерія Речі Посполитої в латах із характерними крилами за спиною, що створювали грізний шум під час атаки.'
+        },
+        {
+            spriteKey: 'enemy_b1_5', fallbackKey: 'enemy_era0', label: 'Рейтар-пікінер', hp: 3, vx: 1.7, flying: false,
+            country: 'Річ Посполита / Європейські найманці',
+            weapon: 'Спис-піка, палаш та колісцевий пістоль',
+            lore: 'Закований у сталеву кірасу та шолом-шишак найманий воїн, який тримав щільний стрій проти козацьких атак.'
+        },
+        {
+            spriteKey: 'enemy_b1_6', fallbackKey: 'enemy_era0', label: 'Стрілець-бердишник', hp: 4, vx: -2.1, flying: false,
+            country: 'Московське царство',
+            weapon: 'Важкий бердиш (бойова сокира) та пищаль',
+            lore: 'Служилий піхотинець Московського царства. Використовував довгий бердиш як для рубаючих ударів, так і як підставку для стрільби з пищалі.'
+        },
+        {
+            spriteKey: 'enemy_b1_1', fallbackKey: 'enemy_era0', label: 'Яничар-ветеран', hp: 3, vx: 1.9, flying: false,
+            country: 'Османська імперія',
+            weapon: 'Кремнієва рушниця та бойовий ятаган',
+            lore: 'Загартований у походах воїн султанської гвардії, озброєний важкою рушницею з порохівницею на поясі.'
+        }
     ],
     1: [
-        { spriteKey: 'enemy_b2_1', fallbackKey: 'enemy_era1', label: 'Окупант-автоматник', hp: 2, vx: 1.8, flying: false },
-        { spriteKey: 'enemy_b2_2', fallbackKey: 'enemy_era1', label: 'Штурмовик-найманець', hp: 3, vx: -2.1, flying: false },
-        { spriteKey: 'enemy_b2_3', fallbackKey: 'enemy_era1', label: 'Ворожий FPV-дрон', hp: 2, vx: 2.6, flying: true },
-        { spriteKey: 'enemy_b2_4', fallbackKey: 'enemy_era1', label: 'Десантник РФ', hp: 3, vx: -1.9, flying: false },
-        { spriteKey: 'enemy_b2_5', fallbackKey: 'enemy_era1', label: 'Тікток-бойовик', hp: 2, vx: 2.0, flying: false },
-        { spriteKey: 'enemy_b2_6', fallbackKey: 'enemy_era1', label: 'Оператор ПТРК', hp: 4, vx: -1.7, flying: false }
+        {
+            spriteKey: 'enemy_b2_1', fallbackKey: 'enemy_era1', label: 'Окупант-автоматник', hp: 2, vx: 1.8, flying: false,
+            country: 'Російська Федерація (ЗС РФ)',
+            weapon: 'Автомат АК-74 / АК-12 та гранати',
+            lore: 'Піхотинець окупаційних військ РФ, що вторглися на суверенну територію України.'
+        },
+        {
+            spriteKey: 'enemy_b2_2', fallbackKey: 'enemy_era1', label: 'Штурмовик-найманець', hp: 3, vx: -2.1, flying: false,
+            country: 'Російська Федерація (ПВК)',
+            weapon: 'Штурмова гвинтівка та бронежилет',
+            lore: 'Найманець російських штурмових підрозділів, який намагається прорвати українську оборону.'
+        },
+        {
+            spriteKey: 'enemy_b2_3', fallbackKey: 'enemy_era1', label: 'Ворожий FPV-дрон', hp: 2, vx: 2.6, flying: true,
+            country: 'Російська Федерація',
+            weapon: 'Кумулятивний боєприпас на дроні-камікадзе',
+            lore: 'Ударний безпілотник ворога, який атакує з повітря та потребує швидкої реакції.'
+        },
+        {
+            spriteKey: 'enemy_b2_4', fallbackKey: 'enemy_era1', label: 'Десантник РФ', hp: 3, vx: -1.9, flying: false,
+            country: 'Російська Федерація (ПДВ)',
+            weapon: 'Автомат АКС-74 та підствольний гранатомет',
+            lore: 'Вояк російських повітряно-десантних військ, розгромлених українськими силами під Гостомелем та на півдні.'
+        },
+        {
+            spriteKey: 'enemy_b2_5', fallbackKey: 'enemy_era1', label: 'Гелікоптер Чорнобаївки', hp: 3, vx: 2.2, flying: true,
+            country: 'Російська Федерація (ВКС РФ)',
+            weapon: 'Некеровані ракети та авіаційна гармата',
+            lore: 'Ударний гелікоптер окупантів, що став мішенню легендарної серії розгромів на аеродромі Чорнобаївка.'
+        },
+        {
+            spriteKey: 'enemy_b2_6', fallbackKey: 'enemy_era1', label: 'Оператор ПТРК', hp: 4, vx: -1.7, flying: false,
+            country: 'Російська Федерація',
+            weapon: 'Протитанковий ракетний комплекс «Корнет»',
+            lore: 'Розрахунок протитанкової зброї ворога, що прикриває позиції окупантів на висотах.'
+        }
     ],
     2: [
-        { spriteKey: 'enemy_b3_1', fallbackKey: 'enemy_era2', label: 'Гелікоптер Чорнобаївки', hp: 3, vx: 2.2, flying: true },
-        { spriteKey: 'enemy_b3_2', fallbackKey: 'enemy_era2', label: 'Дрон-перехоплювач', hp: 2, vx: -2.5, flying: true },
-        { spriteKey: 'enemy_b3_3', fallbackKey: 'enemy_era2', label: 'Кібер-окупант', hp: 3, vx: 2.0, flying: false },
-        { spriteKey: 'enemy_b3_4', fallbackKey: 'enemy_era2', label: 'Робот-крокун', hp: 4, vx: -1.8, flying: false },
-        { spriteKey: 'enemy_b3_5', fallbackKey: 'enemy_era2', label: 'Орбітальний дрон', hp: 3, vx: 2.4, flying: true },
-        { spriteKey: 'enemy_b3_6', fallbackKey: 'enemy_era2', label: 'Штурмовий бот', hp: 4, vx: -2.1, flying: false }
+        {
+            spriteKey: 'enemy_b3_1', fallbackKey: 'enemy_era2', label: 'Бойовий дрон-порушник', hp: 2, vx: 2.2, flying: true,
+            country: 'Безпілотна система повітряного простору',
+            weapon: 'Імпульсний випромінювач',
+            lore: 'Автономний дрон-порушник, якого перехоплює українська повітряна варта майбутнього.'
+        },
+        {
+            spriteKey: 'enemy_b3_2', fallbackKey: 'enemy_era2', label: 'Дрон-перехоплювач', hp: 2, vx: -2.5, flying: true,
+            country: 'Повітряний флот супротивника',
+            weapon: 'Плазмовий розрядник',
+            lore: 'Швидкісний повітряний перехоплювач, що патрулює висотні коридори.'
+        },
+        {
+            spriteKey: 'enemy_b3_3', fallbackKey: 'enemy_era2', label: 'Кібер-диверсант', hp: 3, vx: 2.0, flying: false,
+            country: 'Ворожий кібер-корпус',
+            weapon: 'Електромагнітний карабін',
+            lore: 'Броньований диверсант у екзоскелеті, що намагається проникнути на оборонні платформи.'
+        },
+        {
+            spriteKey: 'enemy_b3_4', fallbackKey: 'enemy_era2', label: 'Робот-крокун', hp: 4, vx: -1.8, flying: false,
+            country: 'Автоматизований бойовий комплекс',
+            weapon: 'Спарені лазерні турелі',
+            lore: 'Важка крокуюча машина з посиленою бронею на верхніх ярусах.'
+        },
+        {
+            spriteKey: 'enemy_b3_5', fallbackKey: 'enemy_era2', label: 'Орбітальний зонд', hp: 3, vx: 2.4, flying: true,
+            country: 'Орбитальна розвідка ворога',
+            weapon: 'Іонний промінь',
+            lore: 'Висотний розвідувально-ударний апарат, що маневрує над хмарами.'
+        },
+        {
+            spriteKey: 'enemy_b3_6', fallbackKey: 'enemy_era2', label: 'Штурмовий бот', hp: 4, vx: -2.1, flying: false,
+            country: 'Механізований загін',
+            weapon: 'Імпульсна гармата та енергощит',
+            lore: 'Важкий бойовий андроїд, який охороняє підступи до фінішного маяка.'
+        }
     ]
 };
 
 const LEVELS = [
-    // ================= БЛОК 1 (Рівні 1–4) =================
+    // ================= БЛОК 1 (Рівні 1–4: Козацька доба) =================
     {
         era: 0,
         shortTitle: "1. Запорозька Січ (1556)",
@@ -289,7 +383,7 @@ const LEVELS = [
         flyingCar: false
     },
 
-    // ================= БЛОК 2 (Рівні 5–8) =================
+    // ================= БЛОК 2 (Рівні 5–8: Сучасність та Повномасштабна війна) =================
     {
         era: 1,
         shortTitle: "5. АТО та ООС (2014–2021)",
@@ -304,10 +398,10 @@ const LEVELS = [
     },
     {
         era: 1,
-        shortTitle: "6. Війна в Україні (2022–2025)",
-        desc: "Масштабна оборона міст, контрнаступи та визволення земель.",
-        name: "Рівень 6: Війна в Україні — Битва за волю",
-        historyTitle: "Велика війна в Україні — Опір та визволення",
+        shortTitle: "6. Повномасштабна війна (2022)",
+        desc: "Масштабна оборона міст, незламність та контрнаступи ЗСУ.",
+        name: "Рівень 6: Повномасштабна війна — Битва за волю",
+        historyTitle: "Повномасштабна війна в Україні — Опір та визволення",
         historyText: "Від оборони столиці й півдня до звільнення українських міст від окупантів. Кожен крок наближає перемогу.",
         sky: ["#263238", "#546e7a"],
         ground: "#3e4732",
@@ -316,14 +410,14 @@ const LEVELS = [
     },
     {
         era: 1,
-        shortTitle: "7. Визволення Півдня та Харківщини",
-        desc: "Стрімкий контрнаступ ЗСУ та повернення українських прапорів.",
-        name: "Рівень 7: Контрнаступ — Визволення міст і сіл",
-        historyTitle: "Контрнаступ Збройних Сил України",
-        historyText: "Ворог тікає, залишаючи техніку. Підіймайся на верхні поверхи укріплень та зачищай позиції окупантів!",
-        sky: ["#1b3b5a", "#4da6ff"],
-        ground: "#2f4f2f",
-        sceneType: "modern_war",
+        shortTitle: "7. Легендарна Чорнобаївка (26:0)",
+        desc: "Бермудський трикутник ворога — розгром окупантів на Херсонщині!",
+        name: "Рівень 7: Легендарна Чорнобаївка (Серія 26:0)",
+        historyTitle: "Чорнобаївка — Незламний рубіж Херсонщини",
+        historyText: "Легендарний аеродром Чорнобаївка, де російські окупанти знову і знову зазнавали нищівного розгрому від ЗСУ!",
+        sky: ["#1f1c2c", "#928dab"],
+        ground: "#2e4033",
+        sceneType: "chornobaivka",
         flyingCar: false
     },
     {
@@ -339,53 +433,57 @@ const LEVELS = [
         flyingCar: false
     },
 
-    // ================= БЛОК 3 (Рівні 9–12) =================
+    // ================= БЛОК 3 (Рівні 9–12: Переможне Майбутнє з 4 новими фонами) =================
     {
         era: 2,
-        shortTitle: "9. Вільне небо Перемоги",
-        desc: "Україна перемогла. Політ над відновленими містами.",
-        name: "Рівень 9: Майбутнє — Політ над вільною Україною",
-        historyTitle: "Україна перемогла — Ера літаючих машин",
-        historyText: "Війна позаду, Україна квітує! Керуй літаючою машиною у чистому небі на всіх 4 висотах.",
-        sky: ["#0b3d91", "#00b4d8"],
-        ground: "#2d6a4f",
-        sceneType: "future_sky_city",
+        shortTitle: "9. Нічний Неоновий Київ Перемоги",
+        desc: "Вогні майбутнього над Дніпром, Батьківщина-Мати та літаючі авто.",
+        name: "Рівень 9: Майбутнє — Нічний Неоновий Київ",
+        historyTitle: "Україна перемогла — Ера технологій та свободи",
+        historyText: "Величний Київ майбутнього сяє тризубами та вишиванковими вогнями! Керуй літаючою машиною над Дніпром.",
+        sky: ["#0b132b", "#1c2541"],
+        ground: "#1d3557",
+        sceneType: "future_1",
+        bgKey: "future_bg_1",
         flyingCar: true
     },
     {
         era: 2,
-        shortTitle: "10. Карпати та хмари майбутнього",
-        desc: "Політ на літаючій машині над гірськими хребтами.",
-        name: "Рівень 10: Майбутнє — Карпатські хмари",
-        historyTitle: "Високогір'я вільної України",
-        historyText: "Літаюча машина легко долає повітряні потоки над Карпатами. Маневруй і прямуй до цілі.",
+        shortTitle: "10. Світанок над Золотоверхим Києвом",
+        desc: "Сонячний світанок, швидкісні магістралі та вільне небо України.",
+        name: "Рівень 10: Майбутнє — Світанок над Дніпром",
+        historyTitle: "Світанок нової епохи вільної України",
+        historyText: "Золоті куполи Лаври поєднуються з футуристичними вежами над Дніпром. Тримай курс у небі Перемоги!",
+        sky: ["#ff7e5f", "#feb47b"],
+        ground: "#2d6a4f",
+        sceneType: "future_2",
+        bgKey: "future_bg_2",
+        flyingCar: true
+    },
+    {
+        era: 2,
+        shortTitle: "11. Вечірні Вогні Мегаполісу",
+        desc: "Сутінковий політ над мостами та сяючими хмарочосами України.",
+        name: "Рівень 11: Майбутнє — Вечірній Мегаполіс",
+        historyTitle: "Незламна держава високих технологій",
+        historyText: "Багаторівневі естакади, сяючий Тризуб та щит Батьківщини-Матері оберігають мирне небо.",
         sky: ["#162447", "#1f4068"],
         ground: "#1b4332",
-        sceneType: "future_carpathians",
+        sceneType: "future_3",
+        bgKey: "future_bg_3",
         flyingCar: true
     },
     {
         era: 2,
-        shortTitle: "11. Легендарна Чорнобаївка (26:0)",
-        desc: "Бермудський трикутник ворога — розгром окупантів у Чорнобаївці!",
-        name: "Рівень 11: Легендарна Чорнобаївка (Серія 26:0)",
-        historyTitle: "Чорнобаївка — Незламний рубіж Херсонщини",
-        historyText: "Легендарний аеродром Чорнобаївка, де ворог знову і знову зазнавав нищівного розгрому! Зачисти всі 4 яруси неба і землі!",
-        sky: ["#1f1c2c", "#928dab"],
-        ground: "#2e4033",
-        sceneType: "chornobaivka",
-        flyingCar: true
-    },
-    {
-        era: 2,
-        shortTitle: "12. Фінал: Зоряний шлях України",
-        desc: "Фінальний політ у майбутньому під синьо-жовтим стягом Перемоги.",
-        name: "Рівень 12: Зоряний шлях — Перемога назавжди",
-        historyTitle: "Зоряний фінал — Непереможна Україна",
-        historyText: "Фінальний політ на літаючій машині крізь хмари слави до золотого сонця вільної України!",
+        shortTitle: "12. Фінал: Еко-Столиця Майбутнього",
+        desc: "Зелені сади на вежах, сонячна енергія та мирне небо Перемоги!",
+        name: "Рівень 12: Фінал — Квітуча Україна Майбутнього",
+        historyTitle: "Фінал — Квітуча та непереможна Україна",
+        historyText: "Фінальний політ над зеленим містом майбутнього під мирним небом вільної України!",
         sky: ["#091e3a", "#2f80ed"],
-        ground: "#1d3557",
-        sceneType: "future_final",
+        ground: "#2d6a4f",
+        sceneType: "future_4",
+        bgKey: "future_bg_4",
         flyingCar: true
     }
 ];
@@ -440,8 +538,16 @@ function drawLevelThumbnail(cvs, lvl) {
     const w = cvs.width;
     const h = cvs.height;
 
+    if (lvl.bgKey && sprites[lvl.bgKey] && sprites[lvl.bgKey].loaded) {
+        tctx.drawImage(sprites[lvl.bgKey], 0, 0, w, h);
+        return;
+    }
     if (lvl.sceneType === 'modern_bridge' && sprites.bg_bridge && sprites.bg_bridge.loaded) {
         tctx.drawImage(sprites.bg_bridge, 0, 0, w, h);
+        return;
+    }
+    if (lvl.sceneType === 'cossack_sich' && sprites.bg_sich && sprites.bg_sich.loaded) {
+        tctx.drawImage(sprites.bg_sich, 0, 0, w, h);
         return;
     }
 
@@ -451,44 +557,81 @@ function drawLevelThumbnail(cvs, lvl) {
     tctx.fillStyle = grad;
     tctx.fillRect(0, 0, w, h);
 
+    // Сонце / місяць / сяйво
+    tctx.fillStyle = "rgba(255, 224, 102, 0.35)";
+    tctx.beginPath();
+    tctx.arc(w - 38, 18, 13, 0, Math.PI * 2);
+    tctx.fill();
+
+    // Силуети пагорбів або будівель
+    tctx.fillStyle = "rgba(20, 28, 22, 0.45)";
+    tctx.beginPath();
+    tctx.moveTo(0, h - 14);
+    tctx.lineTo(35, h - 32);
+    tctx.lineTo(80, h - 22);
+    tctx.lineTo(130, h - 38);
+    tctx.lineTo(185, h - 24);
+    tctx.lineTo(w, h - 30);
+    tctx.lineTo(w, h - 14);
+    tctx.closePath();
+    tctx.fill();
+
     tctx.fillStyle = lvl.ground;
     tctx.fillRect(0, h - 14, w, 14);
 
-    switch (lvl.sceneType) {
-        case 'cossack_sich':
-            tctx.fillStyle = "#6d4222";
-            for (let x = 22; x <= 118; x += 12) {
-                tctx.fillRect(x, 26, 9, 28);
-            }
-            tctx.strokeStyle = "#e0e6ed";
-            tctx.lineWidth = 2.5;
+    // Деталізовані іконки для рівнів без окремого фото-фону
+    if (lvl.sceneType === 'cossack_steppe') {
+        // Козацька чайка / курінь та схрещені шаблі
+        tctx.fillStyle = "#5c3317";
+        tctx.fillRect(24, h - 32, 34, 18);
+        tctx.fillStyle = "#d4af37";
+        tctx.beginPath();
+        tctx.moveTo(20, h - 32); tctx.lineTo(41, h - 46); tctx.lineTo(62, h - 32);
+        tctx.fill();
+        tctx.strokeStyle = "#ffffff";
+        tctx.lineWidth = 2.5;
+        tctx.beginPath();
+        tctx.moveTo(155, 44); tctx.lineTo(188, 14);
+        tctx.moveTo(188, 44); tctx.lineTo(155, 14);
+        tctx.stroke();
+    } else if (lvl.sceneType === 'cossack_baroque') {
+        // Козацький собор із золотими банями
+        tctx.fillStyle = "#f5f5dc";
+        tctx.fillRect(42, h - 38, 44, 24);
+        tctx.fillStyle = "#ffd700";
+        tctx.beginPath();
+        tctx.arc(52, h - 41, 6, 0, Math.PI * 2);
+        tctx.arc(64, h - 46, 8, 0, Math.PI * 2);
+        tctx.arc(76, h - 41, 6, 0, Math.PI * 2);
+        tctx.fill();
+    } else if (lvl.sceneType === 'cossack_kholodnyi') {
+        // Дерева Холодного Яру + синьо-жовтий стяг
+        tctx.fillStyle = "#1b3b1a";
+        for (let tx = 18; tx <= 90; tx += 22) {
             tctx.beginPath();
-            tctx.moveTo(175, 42); tctx.lineTo(202, 16);
-            tctx.moveTo(202, 42); tctx.lineTo(175, 16);
-            tctx.stroke();
-            break;
-        case 'modern_bridge':
-            tctx.fillStyle = "#01579b";
-            tctx.fillRect(0, h - 18, w, 18);
-            tctx.fillStyle = "#78909c";
-            tctx.fillRect(10, 34, 82, 7);
-            tctx.fillRect(130, 34, 80, 7);
-            tctx.fillStyle = "#ff5722";
-            tctx.beginPath();
-            tctx.arc(110, 34, 16, 0, Math.PI * 2);
+            tctx.moveTo(tx, h - 14); tctx.lineTo(tx + 10, h - 44); tctx.lineTo(tx + 20, h - 14);
             tctx.fill();
-            break;
-        case 'chornobaivka':
-            tctx.fillStyle = "#ffd700";
-            tctx.font = "bold 14px Oswald, Arial";
-            tctx.fillText("ЧОРНОБАЇВКА 26:0", 28, 36);
-            break;
-        default:
-            tctx.fillStyle = "#0057b7";
-            tctx.fillRect(80, 16, 54, 13);
-            tctx.fillStyle = "#ffd700";
-            tctx.fillRect(80, 29, 54, 13);
-            break;
+        }
+        tctx.fillStyle = "#0057b7";
+        tctx.fillRect(140, 16, 44, 12);
+        tctx.fillStyle = "#ffd700";
+        tctx.fillRect(140, 28, 44, 12);
+    } else if (lvl.sceneType === 'chornobaivka') {
+        tctx.fillStyle = "rgba(0,0,0,0.55)";
+        tctx.fillRect(18, 18, 184, 26);
+        tctx.strokeStyle = "#ffd700";
+        tctx.strokeRect(18, 18, 184, 26);
+        tctx.fillStyle = "#ffd700";
+        tctx.font = "bold 14px Oswald, Arial";
+        tctx.fillText("ЧОРНОБАЇВКА • 26:0", 42, 36);
+    } else {
+        // Блокпост / прапор України для сучасності
+        tctx.fillStyle = "#37474f";
+        tctx.fillRect(26, h - 26, 46, 12);
+        tctx.fillStyle = "#0057b7";
+        tctx.fillRect(142, 16, 44, 12);
+        tctx.fillStyle = "#ffd700";
+        tctx.fillRect(142, 28, 44, 12);
     }
 }
 
@@ -546,6 +689,41 @@ function resetPlayerToBaseSize() {
     }
 }
 
+const seenEnemyTypes = new Set();
+
+function showEnemyLoreOnce(en) {
+    const typeId = `${en.era}_${en.label}`;
+    if (seenEnemyTypes.has(typeId)) return;
+    seenEnemyTypes.add(typeId);
+
+    const modal = document.getElementById('enemy-lore-modal');
+    if (!modal) return;
+
+    const spr = sprites[en.spriteKey] && sprites[en.spriteKey].loaded ? sprites[en.spriteKey] : sprites[en.fallbackKey];
+    const imgEl = document.getElementById('enemy-lore-img');
+    if (imgEl) imgEl.src = spr ? spr.src : '';
+
+    document.getElementById('enemy-lore-name').innerText = en.label || 'Ворожий воїн';
+    document.getElementById('enemy-lore-country').innerText = `🏴 Держава / Військо: ${en.country || 'Супротивник'}`;
+    document.getElementById('enemy-lore-weapon').innerText = `⚔️ Озброєння: ${en.weapon || 'Холодна та вогнепальна зброя'}`;
+    document.getElementById('enemy-lore-desc').innerText = en.lore || '';
+
+    keys.left = false;
+    keys.right = false;
+    keys.up = false;
+    keys.down = false;
+    gameRunning = false;
+    modal.classList.remove('hidden');
+}
+
+function closeEnemyLore() {
+    const modal = document.getElementById('enemy-lore-modal');
+    if (modal) modal.classList.add('hidden');
+    if (!document.getElementById('end-modal').classList.contains('hidden')) return;
+    gameRunning = true;
+    requestAnimationFrame(gameLoop);
+}
+
 function onEnemyDefeated(en) {
     player.kills++;
     const totalEnemies = Math.max(1, enemies.length);
@@ -554,6 +732,7 @@ function onEnemyDefeated(en) {
     setPlayerScale(targetScale);
     spawnParticles(en.x + en.w / 2, en.y + en.h / 2, "#32cd32", 20);
     updateHUD();
+    showEnemyLoreOnce(en);
 }
 
 function buildSixEnemiesForLevel(lvl, groundY) {
@@ -587,6 +766,9 @@ function buildSixEnemiesForLevel(lvl, groundY) {
             spriteKey: template.spriteKey,
             fallbackKey: template.fallbackKey,
             label: template.label,
+            country: template.country,
+            weapon: template.weapon,
+            lore: template.lore,
             flying: template.flying,
             defeated: false
         };
@@ -1198,7 +1380,13 @@ function drawBackground() {
     const groundY = getGroundY();
 
     // На 4-му рівні 2-го блоку (Кримський міст) показуємо завантажений фон Кримського мосту!
-    if (lvl.sceneType === 'modern_bridge' && sprites.bg_bridge && sprites.bg_bridge.loaded) {
+    if (lvl.bgKey && sprites[lvl.bgKey] && sprites[lvl.bgKey].loaded) {
+        const bgW = canvas.width;
+        const bgH = canvas.height;
+        const scrollOffset = ((cameraX * 0.22) % bgW + bgW) % bgW;
+        ctx.drawImage(sprites[lvl.bgKey], -scrollOffset, 0, bgW, bgH);
+        ctx.drawImage(sprites[lvl.bgKey], bgW - scrollOffset, 0, bgW, bgH);
+    } else if (lvl.sceneType === 'modern_bridge' && sprites.bg_bridge && sprites.bg_bridge.loaded) {
         const bgW = canvas.width;
         const bgH = canvas.height;
         const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
