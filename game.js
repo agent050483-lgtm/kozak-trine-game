@@ -33,6 +33,8 @@ const SPRITE_PATHS = {
     hero_jump_5: 'hero_jump_5.png',
     bg_village: 'ukraine_village_bg.jpg',
     bg_bridge: 'crimean_bridge_bg.jpg',
+    bg_sich: 'zaporozhska_sich_bg.jpg',
+    flying_car: 'flying_car.png',
 
     // Запасні базові спрайти епох
     enemy_era0: 'russian_shooter.png',
@@ -1204,6 +1206,12 @@ function drawBackground() {
         ctx.drawImage(sprites.bg_bridge, bgW - scrollOffset, 0, bgW, bgH);
         ctx.fillStyle = "rgba(10, 15, 25, 0.22)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else if (lvl.sceneType === 'cossack_sich' && sprites.bg_sich && sprites.bg_sich.loaded) {
+        const bgW = canvas.width;
+        const bgH = canvas.height;
+        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
+        ctx.drawImage(sprites.bg_sich, -scrollOffset, 0, bgW, bgH);
+        ctx.drawImage(sprites.bg_sich, bgW - scrollOffset, 0, bgW, bgH);
     } else if (sprites.bg_village && sprites.bg_village.loaded) {
         const bgW = canvas.width;
         const bgH = canvas.height;
@@ -1394,28 +1402,51 @@ function draw() {
     if (player.invulnTimer % 10 > 5) ctx.globalAlpha = 0.5;
 
     if (player.flyingCar) {
-        if (sprites.hero && sprites.hero.loaded) {
-            ctx.save();
-            if (player.facing === -1) {
-                ctx.translate(player.x + player.w, player.y - 12);
-                ctx.scale(-1, 1);
-                ctx.drawImage(sprites.hero, 8, 0, player.w - 16, player.h - 28);
-            } else {
-                ctx.drawImage(sprites.hero, player.x + 8, player.y - 12, player.w - 16, player.h - 28);
-            }
-            ctx.restore();
-        }
-        ctx.fillStyle = "#1565c0";
-        ctx.strokeStyle = "#ffd700";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.ellipse(player.x + player.w / 2, player.y + player.h - 18, Math.round(46 * player.scale), 18, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        const hoverY = Math.sin(nowSec * 3.2) * 5;
+        const tiltAngle = Math.sin(nowSec * 2.4) * 0.035;
+        const carW = Math.round(player.w * 2.35);
+        const carH = Math.round(player.h * 1.12);
+        const carCx = player.x + player.w / 2;
+        const carCy = player.y + player.h * 0.58 + hoverY;
 
-        ctx.fillStyle = "rgba(0, 229, 255, 0.75)";
-        ctx.fillRect(player.x + 10, player.y + player.h + 2, 16, 6);
-        ctx.fillRect(player.x + player.w - 26, player.y + player.h + 2, 16, 6);
+        ctx.save();
+        ctx.translate(carCx, carCy);
+        ctx.rotate(tiltAngle);
+        if (player.facing === -1) ctx.scale(-1, 1);
+
+        // Полум'я з турбін знизу
+        const flameFlicker = 0.8 + Math.sin(nowSec * 18) * 0.25;
+        const turbineOffsets = [-carW * 0.24, carW * 0.16];
+        for (let tx of turbineOffsets) {
+            ctx.fillStyle = "rgba(0, 229, 255, 0.85)";
+            ctx.beginPath();
+            ctx.moveTo(tx - 10, carH * 0.34);
+            ctx.lineTo(tx + 10, carH * 0.34);
+            ctx.lineTo(tx, carH * 0.34 + 24 * flameFlicker);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = "rgba(255, 193, 7, 0.9)";
+            ctx.beginPath();
+            ctx.arc(tx, carH * 0.34 + 5, 6 * flameFlicker, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Корпус літаючої машини
+        if (sprites.flying_car && sprites.flying_car.loaded) {
+            ctx.drawImage(sprites.flying_car, -carW / 2, -carH / 2, carW, carH);
+        } else {
+            ctx.fillStyle = "#1565c0";
+            ctx.fillRect(-carW / 2, -carH / 3, carW, carH * 0.6);
+        }
+
+        // Легкий рух крил та коліс-турбін
+        const wingShift = Math.sin(nowSec * 5.0) * 2.5;
+        ctx.fillStyle = "rgba(180, 220, 255, 0.22)";
+        ctx.fillRect(-carW * 0.36, -4 + wingShift, carW * 0.22, 6);
+        ctx.fillRect(carW * 0.12, 2 - wingShift, carW * 0.24, 6);
+
+        ctx.restore();
     } else {
         let activeSprite = sprites.hero;
         if (player.attackTimer > 0) {
@@ -1445,8 +1476,9 @@ function draw() {
             }
         }
 
-        const drawW = Math.round(player.w * 1.28);
-        const drawH = Math.round(player.h * 1.12);
+        // Природні пропорції героя без зайвого розтягування по висоті
+        const drawW = Math.round(player.w * 1.14);
+        const drawH = Math.round(player.h * 0.96);
         const drawX = player.x + Math.round((player.w - drawW) / 2);
         const drawY = (player.y + player.h) - drawH;
 
