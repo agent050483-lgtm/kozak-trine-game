@@ -28,7 +28,7 @@
                 </div>
                 <button class="fs-btn" onclick="toggleFullscreen()">⛶ На весь екран</button>
             </div>
-            <p class="subtitle">Ліво / Право • Драбини ▲▼ • Стрибок або політ • Атака / Постріл</p>
+            <p class="subtitle">Ліво / Право • Драбини та Канати ▲▼ • 4 поверхи вгору • Увага: Горілка інвертує кнопки на 10с!</p>
 
             <div class="era-tabs">
                 <button class="era-tab active" data-era="0" onclick="selectEraTab(0)">I. Козацька доба (1–4)</button>
@@ -63,9 +63,10 @@
 
     <div id="hud" class="hidden">
         <div class="hud-left">
-            <div id="hp-bar">❤️❤️❤️</div>
+            <div id="hp-bar">❤️❤️❤️❤️</div>
             <div id="level-label">Рівень 1</div>
-            <div id="mode-label">Режим: Поверхня</div>
+            <div id="mode-label">Епоха: Козацька</div>
+            <div id="drunk-badge" class="hidden" style="background:#b71c1c;color:#fff;padding:2px 8px;border-radius:6px;border:1px solid #ffd700;">🍾 НАВПАКИ: 10с</div>
         </div>
         <div class="hud-right">
             <span class="hud-item-badge"><img id="hud-knife-icon" class="hud-icon" src="knife_sprite.png" alt=""> Ножі: <b id="knife-count">3</b></span>
