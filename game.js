@@ -183,7 +183,7 @@ function playSfx(key) {
 
 function playEraMusic(eraIdx) {
     currentEraForAudio = eraIdx;
-    const src = ERA_BGM[eraIdx] || ERA_BGM[0];
+    const src = (eraIdx === 0 && currentLevelIdx === 0) ? 'bgm_sich.mp3' : (ERA_BGM[eraIdx] || ERA_BGM[0]);
     if (bgmAudio && currentBgmSrc === src) {
         if (!isMuted && bgmAudio.paused) bgmAudio.play().catch(() => {});
         return;
@@ -434,7 +434,7 @@ const LEVELS = [
         desc: "Визначна операція ураження незаконної переправи окупантів.",
         name: "Рівень 8: Підрив Кримського мосту — 08.10.2022",
         historyTitle: "08.10.2022 — Підрив Кримського мосту",
-        historyText: "Точний удар по незаконній переправі ворога через Керченську протоку! Пройди палаючий міст до переможного прапора!",
+        historyText: "Підриви та удари по незаконному Керченському мосту під час повномасштабної війни: перший масштабний підрив СБУ 8 жовтня 2022 року, підрив опор 3 червня 2025 року та серія атак 16–17 листопада 2026 року з руйнуванням автомобільної арки над фарватером!",
         sky: ["#1a237e", "#0288d1"],
         ground: "#37474f",
         sceneType: "modern_bridge",
@@ -670,6 +670,7 @@ let ladders = [];
 let ropes = [];
 let enemies = [];
 let items = [];
+let cottages = [];
 let projectiles = [];
 let particles = [];
 
@@ -798,15 +799,19 @@ function buildLevelPlatforms(lvl, groundY) {
         { specIdx: 0, x: 2260, surfaceY: groundY - 660, w: 430 }
     ];
 
+    // Пропорційне збільшення козацьких платформ відносно зросту героя (хата на платформі більша за героя)
+    const minBuildingH = Math.round(BASE_PLAYER_H * 1.65);
     return layout.map(item => {
         const sp = COSSACK_PLAT_CATALOG[item.specIdx];
-        const drawH = Math.round(item.w * (sp.natH / sp.natW));
+        const scaledW = Math.round(item.w * 1.35);
+        const rawH = Math.round(scaledW * (sp.natH / sp.natW));
+        const drawH = Math.max(minBuildingH, rawH);
         const walkOffset = drawH * sp.walkRatio;
         const drawTop = item.surfaceY - walkOffset;
         return {
             x: item.x,
             y: item.surfaceY,
-            w: item.w,
+            w: scaledW,
             h: 18,
             cossackSpriteKey: sp.key,
             drawTop: drawTop,
@@ -953,6 +958,13 @@ function initLevel(levelIdx) {
         { x: 2540, y: groundY - 705, type: 'heart',  vx: 0, vy: 0, collected: false },
         // Пляшка горілки (1 шт. на рівень — при взятті на 10с інвертує кнопки вліво/вправо і вгору/вниз)
         { x: 1440, y: groundY - 380, type: 'vodka',  vx: 0, vy: 0, collected: false }
+    ];
+
+    const cottageRewards = ['heart', 'knife', 'vodka'];
+    cottages = lvl.flyingCar ? [] : [
+        { x: 680,  y: groundY - 172, w: 146, h: 172, doorX: 738, doorY: groundY - 78, doorW: 32, doorH: 78, doorOpen: false, reward: cottageRewards[levelIdx % 3] },
+        { x: 1650, y: groundY - 172, w: 146, h: 172, doorX: 1708, doorY: groundY - 78, doorW: 32, doorH: 78, doorOpen: false, reward: cottageRewards[(levelIdx + 1) % 3] },
+        { x: 2550, y: groundY - 172, w: 146, h: 172, doorX: 2608, doorY: groundY - 78, doorW: 32, doorH: 78, doorOpen: false, reward: cottageRewards[(levelIdx + 2) % 3] }
     ];
 
     document.getElementById('jump-label').innerText = lvl.flyingCar ? "Вгору" : "Стрибок";
@@ -1172,17 +1184,17 @@ function update() {
         // Перевірка дверей хат під соломою при натисканні Вгору (як підйом по драбині)
         if (effUp && cottages && cottages.length > 0) {
             for (let cot of cottages) {
-                if (!cot.doorOpen && Math.abs((player.x + player.w / 2) - (cot.doorX + cot.doorW / 2)) < 48 &&
-                    Math.abs((player.y + player.h) - (cot.doorY + cot.doorH)) < 44) {
+                if (!cot.doorOpen && Math.abs((player.x + player.w / 2) - (cot.doorX + cot.doorW / 2)) < 52 &&
+                    Math.abs((player.y + player.h) - (cot.doorY + cot.doorH)) < 48) {
                     cot.doorOpen = true;
                     playSfx('pickup');
-                    spawnParticles(cot.doorX + cot.doorW / 2, cot.doorY + cot.doorH / 2, "#ffd700", 16);
+                    spawnParticles(cot.doorX + cot.doorW / 2, cot.doorY + cot.doorH / 2, "#ffd700", 18);
                     items.push({
                         x: cot.doorX + cot.doorW / 2 - 12,
-                        y: cot.doorY + 12,
+                        y: cot.doorY + 14,
                         type: cot.reward,
                         vx: (player.facing || 1) * 2.2,
-                        vy: -5.5,
+                        vy: -5.8,
                         collected: false
                     });
                 }
@@ -1513,9 +1525,39 @@ function drawBackground() {
     } else if (lvl.sceneType === 'cossack_sich' && sprites.bg_sich && sprites.bg_sich.loaded) {
         const bgW = canvas.width;
         const bgH = canvas.height;
-        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
-        ctx.drawImage(sprites.bg_sich, -scrollOffset, 0, bgW, bgH);
-        ctx.drawImage(sprites.bg_sich, bgW - scrollOffset, 0, bgW, bgH);
+        const farOffset = ((cameraX * 0.16) % bgW + bgW) % bgW;
+        ctx.drawImage(sprites.bg_sich, -farOffset, 0, bgW, bgH);
+        ctx.drawImage(sprites.bg_sich, bgW - farOffset, 0, bgW, bgH);
+
+        const cloudOffset = ((cameraX * 0.34) % bgW + bgW) % bgW;
+        ctx.fillStyle = "rgba(255, 250, 235, 0.44)";
+        for (let pass = -1; pass <= 1; pass++) {
+            const baseX = pass * bgW - cloudOffset;
+            for (let cx = 90; cx < bgW; cx += 280) {
+                const cy = 62 + ((cx / 280) % 2) * 22;
+                ctx.beginPath();
+                ctx.arc(baseX + cx, cy, 24, 0, Math.PI * 2);
+                ctx.arc(baseX + cx + 22, cy - 6, 28, 0, Math.PI * 2);
+                ctx.arc(baseX + cx + 46, cy + 2, 22, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const midOffset = ((cameraX * 0.52) % bgW + bgW) % bgW;
+        for (let pass = -1; pass <= 1; pass++) {
+            const baseX = pass * bgW - midOffset;
+            for (let bx = 50; bx < bgW; bx += 190) {
+                ctx.fillStyle = "#2b4c24";
+                ctx.beginPath();
+                ctx.arc(baseX + bx, groundY - 8, 22, Math.PI, 0);
+                ctx.arc(baseX + bx + 18, groundY - 8, 26, Math.PI, 0);
+                ctx.arc(baseX + bx + 36, groundY - 8, 19, Math.PI, 0);
+                ctx.fill();
+            }
+        }
+
+        ctx.fillStyle = "rgba(255, 238, 196, 0.09)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else if (sprites.bg_village && sprites.bg_village.loaded) {
         const bgW = canvas.width;
         const bgH = canvas.height;
@@ -1605,6 +1647,46 @@ function draw() {
         ctx.arc(rp.x, rp.y + rp.h, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
+    }
+
+    // Хати під солом'яним дахом із дверима (натисни ▲ / Вгору перед дверима, щоб відчинити)
+    for (let cot of cottages) {
+        ctx.fillStyle = "#f4efe2";
+        ctx.fillRect(cot.x + 12, cot.y + 48, cot.w - 24, cot.h - 48);
+        ctx.strokeStyle = "#5c3317";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cot.x + 12, cot.y + 48, cot.w - 24, cot.h - 48);
+
+        ctx.fillStyle = "#5bc0eb";
+        ctx.fillRect(cot.x + 24, cot.y + 68, 20, 22);
+        ctx.strokeStyle = "#5c3317";
+        ctx.strokeRect(cot.x + 24, cot.y + 68, 20, 22);
+
+        ctx.fillStyle = "#d9a441";
+        ctx.beginPath();
+        ctx.moveTo(cot.x - 4, cot.y + 52);
+        ctx.lineTo(cot.x + cot.w / 2, cot.y + 4);
+        ctx.lineTo(cot.x + cot.w + 4, cot.y + 52);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#7a4b16";
+        ctx.stroke();
+
+        if (cot.doorOpen) {
+            ctx.fillStyle = "#1b120b";
+            ctx.fillRect(cot.doorX, cot.doorY, cot.doorW, cot.doorH);
+            ctx.fillStyle = "#8d5524";
+            ctx.fillRect(cot.doorX - 11, cot.doorY, 11, cot.doorH);
+        } else {
+            ctx.fillStyle = "#6e3b14";
+            ctx.fillRect(cot.doorX, cot.doorY, cot.doorW, cot.doorH);
+            ctx.strokeStyle = "#ffd700";
+            ctx.lineWidth = 1.8;
+            ctx.strokeRect(cot.doorX, cot.doorY, cot.doorW, cot.doorH);
+            ctx.fillStyle = "#ffd700";
+            ctx.font = "bold 14px Oswald, Arial";
+            ctx.fillText("▲", cot.doorX + cot.doorW / 2 - 6, cot.doorY - 6);
+        }
     }
 
     // ПЛАТФОРМИ 4 ПОВЕРХІВ
@@ -1814,6 +1896,17 @@ function draw() {
     for (let pt of particles) {
         ctx.fillStyle = pt.color;
         ctx.fillRect(pt.x, pt.y, 4, 4);
+    }
+
+    if (lvl.sceneType === 'cossack_sich') {
+        ctx.fillStyle = "rgba(33, 64, 24, 0.82)";
+        for (let fx = 220; fx < LEVEL_WIDTH - 200; fx += 440) {
+            ctx.beginPath();
+            ctx.arc(fx, groundY + 4, 17, Math.PI, 0);
+            ctx.arc(fx + 14, groundY + 4, 20, Math.PI, 0);
+            ctx.arc(fx + 28, groundY + 4, 15, Math.PI, 0);
+            ctx.fill();
+        }
     }
 
     // Прапор фінішу рівня
