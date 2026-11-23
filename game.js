@@ -39,6 +39,14 @@ const SPRITE_PATHS = {
     future_bg_2: 'future_bg_2.jpg',
     future_bg_3: 'future_bg_3.jpg',
     future_bg_4: 'future_bg_4.jpg',
+    cossack_plat_wide_1: 'cossack_plat_wide_1.png',
+    cossack_plat_wide_2: 'cossack_plat_wide_2.png',
+    cossack_plat_wide_3: 'cossack_plat_wide_3.png',
+    cossack_plat_wide_4: 'cossack_plat_wide_4.png',
+    cossack_plat_isl_1: 'cossack_plat_isl_1.png',
+    cossack_plat_isl_2: 'cossack_plat_isl_2.png',
+    cossack_plat_isl_3: 'cossack_plat_isl_3.png',
+    cossack_plat_isl_4: 'cossack_plat_isl_4.png',
 
     // Запасні базові спрайти епох
     enemy_era0: 'russian_shooter.png',
@@ -735,32 +743,127 @@ function onEnemyDefeated(en) {
     showEnemyLoreOnce(en);
 }
 
-function buildSixEnemiesForLevel(lvl, groundY) {
-    const pool = ERA_ENEMY_TYPES[lvl.era] || ERA_ENEMY_TYPES[0];
-    // 6 різних ворогів на різних поверхах по всьому рівню
-    const spots = [
-        { x: 560,  yOffset: 0,   range: 200 }, // Земля
-        { x: 960,  yOffset: 165, range: 210 }, // 1-й поверх вгору
-        { x: 1420, yOffset: 330, range: 220 }, // 2-й поверх вгору
-        { x: 1920, yOffset: 495, range: 220 }, // 3-й поверх вгору
-        { x: 2450, yOffset: 660, range: 240 }, // 4-й поверх вгору (верхній ярус)
-        { x: 2880, yOffset: 165, range: 230 }  // Перед фінішем
+const COSSACK_PLAT_CATALOG = [
+    { key: 'cossack_plat_wide_1', natW: 1286, natH: 178, walkRatio: 0.607 },
+    { key: 'cossack_plat_wide_2', natW: 1294, natH: 179, walkRatio: 0.380 },
+    { key: 'cossack_plat_wide_3', natW: 1287, natH: 174, walkRatio: 0.511 },
+    { key: 'cossack_plat_wide_4', natW: 1288, natH: 177, walkRatio: 0.407 },
+    { key: 'cossack_plat_isl_1',  natW: 598,  natH: 287, walkRatio: 0.394 },
+    { key: 'cossack_plat_isl_2',  natW: 608,  natH: 332, walkRatio: 0.455 },
+    { key: 'cossack_plat_isl_3',  natW: 640,  natH: 311, walkRatio: 0.453 },
+    { key: 'cossack_plat_isl_4',  natW: 466,  natH: 297, walkRatio: 0.185 }
+];
+
+function buildLevelPlatforms(lvl, groundY) {
+    if (lvl.era !== 0) {
+        return [
+            { x: 340,  y: groundY - 165, w: 260, h: 18 },
+            { x: 860,  y: groundY - 165, w: 300, h: 18 },
+            { x: 1520, y: groundY - 165, w: 280, h: 18 },
+            { x: 2150, y: groundY - 165, w: 300, h: 18 },
+            { x: 2780, y: groundY - 165, w: 320, h: 18 },
+            { x: 520,  y: groundY - 330, w: 280, h: 18 },
+            { x: 1280, y: groundY - 330, w: 320, h: 18 },
+            { x: 1980, y: groundY - 330, w: 290, h: 18 },
+            { x: 2620, y: groundY - 330, w: 300, h: 18 },
+            { x: 740,  y: groundY - 495, w: 300, h: 18 },
+            { x: 1780, y: groundY - 495, w: 340, h: 18 },
+            { x: 2420, y: groundY - 495, w: 310, h: 18 },
+            { x: 1060, y: groundY - 660, w: 340, h: 18 },
+            { x: 2280, y: groundY - 660, w: 420, h: 18 }
+        ];
+    }
+
+    const layout = [
+        // 1-й поверх вгору (groundY - 165)
+        { specIdx: 4, x: 330,  surfaceY: groundY - 165, w: 270 },
+        { specIdx: 0, x: 840,  surfaceY: groundY - 165, w: 340 },
+        { specIdx: 5, x: 1510, surfaceY: groundY - 165, w: 290 },
+        { specIdx: 1, x: 2130, surfaceY: groundY - 165, w: 340 },
+        { specIdx: 2, x: 2760, surfaceY: groundY - 165, w: 340 },
+
+        // 2-й поверх вгору (groundY - 330)
+        { specIdx: 6, x: 500,  surfaceY: groundY - 330, w: 300 },
+        { specIdx: 1, x: 1250, surfaceY: groundY - 330, w: 350 },
+        { specIdx: 7, x: 1960, surfaceY: groundY - 330, w: 290 },
+        { specIdx: 3, x: 2600, surfaceY: groundY - 330, w: 320 },
+
+        // 3-й поверх вгору (groundY - 495)
+        { specIdx: 2, x: 720,  surfaceY: groundY - 495, w: 330 },
+        { specIdx: 0, x: 1750, surfaceY: groundY - 495, w: 360 },
+        { specIdx: 5, x: 2410, surfaceY: groundY - 495, w: 320 },
+
+        // 4-й поверх вгору (groundY - 660)
+        { specIdx: 3, x: 1040, surfaceY: groundY - 660, w: 360 },
+        { specIdx: 0, x: 2260, surfaceY: groundY - 660, w: 430 }
     ];
 
-    return spots.map((sp, i) => {
+    return layout.map(item => {
+        const sp = COSSACK_PLAT_CATALOG[item.specIdx];
+        const drawH = Math.round(item.w * (sp.natH / sp.natW));
+        const walkOffset = drawH * sp.walkRatio;
+        const drawTop = item.surfaceY - walkOffset;
+        return {
+            x: item.x,
+            y: item.surfaceY,
+            w: item.w,
+            h: 18,
+            cossackSpriteKey: sp.key,
+            drawTop: drawTop,
+            drawH: drawH
+        };
+    });
+}
+
+function buildSixEnemiesForLevel(lvl, groundY, levelPlatforms) {
+    const pool = ERA_ENEMY_TYPES[lvl.era] || ERA_ENEMY_TYPES[0];
+    const placements = [
+        { platIdx: null, x: 560,  range: 190 }, // Земля (groundY)
+        { platIdx: 1,    x: 920,  range: 180 }, // Платформа 1-го поверху
+        { platIdx: 6,    x: 1340, range: 190 }, // Платформа 2-го поверху
+        { platIdx: 10,   x: 1840, range: 200 }, // Платформа 3-го поверху
+        { platIdx: 13,   x: 2360, range: 210 }, // Платформа 4-го поверху
+        { platIdx: 4,    x: 2840, range: 180 }  // Платформа перед фінішем
+    ];
+
+    return placements.map((pl, i) => {
         const template = pool[i % pool.length];
         const ew = template.flying ? 86 : 82;
         const eh = template.flying ? 74 : 130;
-        const baseY = groundY - sp.yOffset - eh - (template.flying ? 25 : 0);
+
+        let minBoundX = 200;
+        let maxBoundX = LEVEL_WIDTH - 240;
+        let supportY = groundY;
+
+        if (pl.platIdx !== null && levelPlatforms && levelPlatforms[pl.platIdx]) {
+            const p = levelPlatforms[pl.platIdx];
+            supportY = p.y;
+            minBoundX = p.x + 12;
+            maxBoundX = Math.max(minBoundX + 40, p.x + p.w - ew - 12);
+        } else {
+            minBoundX = Math.max(220, pl.x - 80);
+            maxBoundX = Math.min(LEVEL_WIDTH - 260, pl.x + pl.range);
+        }
+
+        const clampedStartX = Math.max(minBoundX, Math.min(maxBoundX - 20, pl.x - 40));
+        const span = Math.max(20, maxBoundX - clampedStartX);
+        const startX0 = clampedStartX + Math.min(span * 0.35, 30);
+
+        const footY = template.flying ? (supportY - 26) : supportY;
+        const topY = footY - eh;
+
         return {
-            x: sp.x,
-            y: baseY,
-            baseY: baseY,
+            x: startX0,
+            y: topY,
+            baseY: topY,
             w: ew,
             h: eh,
             vx: template.vx,
-            startX: sp.x - 60,
-            range: sp.range,
+            vy: 0,
+            startX: clampedStartX,
+            range: span,
+            supportY: supportY,
+            platIdx: pl.platIdx,
             hp: template.hp,
             era: lvl.era,
             spriteKey: template.spriteKey,
@@ -798,12 +901,11 @@ function initLevel(levelIdx) {
         maxHp: 5,
         knives: 4,
         pistolAmmo: lvl.flyingCar ? 6 : 3,
-        // Сповільнена анімація удару шаблею (42 кадри замість 24 — у 1.75 раза повільніша і виразніша)
         attackTimer: 0,
         attackDuration: 42,
         walkAnimTimer: 0,
         invulnTimer: 0,
-        drunkTimer: 0, // Таймер інверсії керування від горілки (600 кадрів = 10 секунд)
+        drunkTimer: 0,
         onClimbable: false,
         flyingCar: lvl.flyingCar
     };
@@ -813,44 +915,19 @@ function initLevel(levelIdx) {
     projectiles = [];
     particles = [];
 
-    // 4 ПОВЕРХИ ВГОРУ (крок ~165px по висоті)
-    platforms = [
-        // 1-й поверх вгору (groundY - 165)
-        { x: 340,  y: groundY - 165, w: 260, h: 18 },
-        { x: 860,  y: groundY - 165, w: 300, h: 18 },
-        { x: 1520, y: groundY - 165, w: 280, h: 18 },
-        { x: 2150, y: groundY - 165, w: 300, h: 18 },
-        { x: 2780, y: groundY - 165, w: 320, h: 18 },
+    platforms = buildLevelPlatforms(lvl, groundY);
 
-        // 2-й поверх вгору (groundY - 330)
-        { x: 520,  y: groundY - 330, w: 280, h: 18 },
-        { x: 1280, y: groundY - 330, w: 320, h: 18 },
-        { x: 1980, y: groundY - 330, w: 290, h: 18 },
-        { x: 2620, y: groundY - 330, w: 300, h: 18 },
-
-        // 3-й поверх вгору (groundY - 495)
-        { x: 740,  y: groundY - 495, w: 300, h: 18 },
-        { x: 1780, y: groundY - 495, w: 340, h: 18 },
-        { x: 2420, y: groundY - 495, w: 310, h: 18 },
-
-        // 4-й поверх вгору — найвищий ярус (groundY - 660)
-        { x: 1060, y: groundY - 660, w: 340, h: 18 },
-        { x: 2280, y: groundY - 660, w: 420, h: 18 }
-    ];
-
-    // ДРАБИНИ між поверхами
     ladders = lvl.flyingCar ? [] : [
-        { x: 560,  y: groundY - 330, w: 40, h: 330 }, // з землі до 2-го поверху
-        { x: 1560, y: groundY - 330, w: 40, h: 165 }, // з 1-го на 2-й поверх
-        { x: 2040, y: groundY - 495, w: 40, h: 330 }, // з 1-го на 3-й поверх
-        { x: 2860, y: groundY - 330, w: 40, h: 330 }  // спуск/підйом біля фінішу
+        { x: 560,  y: groundY - 330, w: 40, h: 330 },
+        { x: 1560, y: groundY - 330, w: 40, h: 165 },
+        { x: 2040, y: groundY - 495, w: 40, h: 330 },
+        { x: 2860, y: groundY - 330, w: 40, h: 330 }
     ];
 
-    // КАНАТИ для вертикального лазіння та перестрибування
     ropes = lvl.flyingCar ? [] : [
-        { x: 940,  y: groundY - 495, h: 330 }, // канат з 1-го на 3-й поверх
-        { x: 1220, y: groundY - 660, h: 330 }, // канат з 2-го на 4-й поверх
-        { x: 2480, y: groundY - 660, h: 330 }  // канат на 4-й поверх
+        { x: 940,  y: groundY - 495, h: 330 },
+        { x: 1220, y: groundY - 660, h: 330 },
+        { x: 2480, y: groundY - 660, h: 330 }
     ];
 
     crates = lvl.flyingCar ? [] : [
@@ -865,8 +942,7 @@ function initLevel(levelIdx) {
         { x: 2320, y: groundY - 52, w: 52, h: 52, vx: -2.1, vy: 0, angle: 0, minX: 1950, maxX: 2650, chopped: false, hitCooldown: 0 }
     ];
 
-    // 6 різних ворогів на рівень
-    enemies = buildSixEnemiesForLevel(lvl, groundY);
+    enemies = buildSixEnemiesForLevel(lvl, groundY, platforms);
 
     // Бонуси + 1 ПЛЯШКА ГОРІЛКИ НА КОЖНОМУ РІВНІ
     items = [
@@ -1287,9 +1363,29 @@ function update() {
     for (let en of enemies) {
         if (en.defeated || en.hp <= 0) continue;
         en.x += en.vx;
-        if (en.x > en.startX + en.range || en.x < en.startX) en.vx *= -1;
+        if (en.x > en.startX + en.range) {
+            en.x = en.startX + en.range;
+            en.vx = -Math.abs(en.vx);
+        } else if (en.x < en.startX) {
+            en.x = en.startX;
+            en.vx = Math.abs(en.vx);
+        }
         if (en.flying) {
-            en.y = en.baseY + Math.sin(nowSec * 1.4 + en.startX) * 16;
+            en.y = en.baseY + Math.sin(nowSec * 1.4 + en.startX) * 14;
+        } else {
+            let floorY = groundY;
+            for (let plat of platforms) {
+                const footCenterX = en.x + en.w * 0.5;
+                if (footCenterX >= plat.x && footCenterX <= plat.x + plat.w && plat.y >= en.y + en.h * 0.5) {
+                    if (plat.y < floorY) floorY = plat.y;
+                }
+            }
+            en.vy = (en.vy || 0) + GRAVITY;
+            en.y += en.vy;
+            if (en.y + en.h >= floorY) {
+                en.y = floorY - en.h;
+                en.vy = 0;
+            }
         }
 
         if (player.invulnTimer === 0 &&
@@ -1493,10 +1589,15 @@ function draw() {
 
     // ПЛАТФОРМИ 4 ПОВЕРХІВ
     for (let plat of platforms) {
-        ctx.fillStyle = "#8c583a";
-        ctx.fillRect(plat.x, plat.y - 6, plat.w, 6);
-        ctx.fillStyle = "#4a2c18";
-        ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+        const pspr = plat.cossackSpriteKey && sprites[plat.cossackSpriteKey];
+        if (pspr && pspr.loaded) {
+            ctx.drawImage(pspr, plat.x, plat.drawTop, plat.w, plat.drawH);
+        } else {
+            ctx.fillStyle = "#8c583a";
+            ctx.fillRect(plat.x, plat.y - 6, plat.w, 6);
+            ctx.fillStyle = "#4a2c18";
+            ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+        }
     }
 
     // Бочки
