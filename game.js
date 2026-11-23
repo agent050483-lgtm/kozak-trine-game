@@ -19,6 +19,18 @@ const SPRITE_PATHS = {
     hero_attack_3: 'hero_attack_3.png',
     hero_attack_4: 'hero_attack_4.png',
     hero_attack_5: 'hero_attack_5.png',
+    hero_walk_0: 'hero_walk_0.png',
+    hero_walk_1: 'hero_walk_1.png',
+    hero_walk_2: 'hero_walk_2.png',
+    hero_walk_3: 'hero_walk_3.png',
+    hero_walk_4: 'hero_walk_4.png',
+    hero_walk_5: 'hero_walk_5.png',
+    hero_jump_0: 'hero_jump_0.png',
+    hero_jump_1: 'hero_jump_1.png',
+    hero_jump_2: 'hero_jump_2.png',
+    hero_jump_3: 'hero_jump_3.png',
+    hero_jump_4: 'hero_jump_4.png',
+    hero_jump_5: 'hero_jump_5.png',
     bg_village: 'ukraine_village_bg.jpg',
     bg_bridge: 'crimean_bridge_bg.jpg',
 
@@ -605,6 +617,7 @@ function initLevel(levelIdx) {
         // Сповільнена анімація удару шаблею (42 кадри замість 24 — у 1.75 раза повільніша і виразніша)
         attackTimer: 0,
         attackDuration: 42,
+        walkAnimTimer: 0,
         invulnTimer: 0,
         drunkTimer: 0, // Таймер інверсії керування від горілки (600 кадрів = 10 секунд)
         onClimbable: false,
@@ -1078,6 +1091,12 @@ function update() {
     }
 
     if (player.invulnTimer > 0) player.invulnTimer--;
+    if (Math.abs(player.vx) > 0.35 && player.jumpsLeft === 2 && !player.onClimbable) {
+        player.walkAnimTimer++;
+    } else {
+        player.walkAnimTimer = 0;
+    }
+
     if (player.attackTimer > 0) player.attackTimer--;
 
     const nowSec = performance.now() * 0.003;
@@ -1405,6 +1424,24 @@ function draw() {
             const atkSpr = sprites[`hero_attack_${frameIdx}`];
             if (atkSpr && atkSpr.loaded) {
                 activeSprite = atkSpr;
+            }
+        } else if (player.jumpsLeft < 2 && !player.onClimbable) {
+            let jumpIdx = 2;
+            if (player.vy < -10) jumpIdx = 0;
+            else if (player.vy < -4) jumpIdx = 1;
+            else if (player.vy <= 3) jumpIdx = 2;
+            else if (player.vy <= 8) jumpIdx = 3;
+            else if (player.vy <= 13) jumpIdx = 4;
+            else jumpIdx = 5;
+            const jmpSpr = sprites[`hero_jump_${jumpIdx}`];
+            if (jmpSpr && jmpSpr.loaded) {
+                activeSprite = jmpSpr;
+            }
+        } else if (Math.abs(player.vx) > 0.35 && !player.onClimbable) {
+            const walkIdx = Math.floor(player.walkAnimTimer / 6) % 6;
+            const wlkSpr = sprites[`hero_walk_${walkIdx}`];
+            if (wlkSpr && wlkSpr.loaded) {
+                activeSprite = wlkSpr;
             }
         }
 
