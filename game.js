@@ -183,7 +183,7 @@ function playSfx(key) {
 
 function playEraMusic(eraIdx) {
     currentEraForAudio = eraIdx;
-    const src = ERA_BGM[eraIdx] || ERA_BGM[0];
+    const src = (eraIdx === 0 && currentLevelIdx === 0) ? 'bgm_sich.mp3' : (ERA_BGM[eraIdx] || ERA_BGM[0]);
     if (bgmAudio && currentBgmSrc === src) {
         if (!isMuted && bgmAudio.paused) bgmAudio.play().catch(() => {});
         return;
@@ -798,15 +798,18 @@ function buildLevelPlatforms(lvl, groundY) {
         { specIdx: 0, x: 2260, surfaceY: groundY - 660, w: 430 }
     ];
 
+    const minHouseAboveWalk = Math.round(BASE_PLAYER_H * 1.18);
     return layout.map(item => {
         const sp = COSSACK_PLAT_CATALOG[item.specIdx];
-        const drawH = Math.round(item.w * (sp.natH / sp.natW));
+        const scaledW = Math.round(item.w * 1.42);
+        const rawH = Math.round(scaledW * (sp.natH / sp.natW));
+        const drawH = Math.max(rawH, Math.round(minHouseAboveWalk / Math.max(sp.walkRatio, 0.32)));
         const walkOffset = drawH * sp.walkRatio;
         const drawTop = item.surfaceY - walkOffset;
         return {
             x: item.x,
             y: item.surfaceY,
-            w: item.w,
+            w: scaledW,
             h: 18,
             cossackSpriteKey: sp.key,
             drawTop: drawTop,
@@ -1475,39 +1478,68 @@ function drawBackground() {
     const lvl = LEVELS[currentLevelIdx];
     const groundY = getGroundY();
 
-    // На 4-му рівні 2-го блоку (Кримський міст) показуємо завантажений фон Кримського мосту!
+    const bgW = canvas.width;
+    const bgH = canvas.height;
+
+    // Шар 1: Дальній фон (повільний паралакс)
     if (lvl.bgKey && sprites[lvl.bgKey] && sprites[lvl.bgKey].loaded) {
-        const bgW = canvas.width;
-        const bgH = canvas.height;
-        const scrollOffset = ((cameraX * 0.22) % bgW + bgW) % bgW;
+        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
         ctx.drawImage(sprites[lvl.bgKey], -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites[lvl.bgKey], bgW - scrollOffset, 0, bgW, bgH);
     } else if (lvl.sceneType === 'modern_bridge' && sprites.bg_bridge && sprites.bg_bridge.loaded) {
-        const bgW = canvas.width;
-        const bgH = canvas.height;
-        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
+        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
         ctx.drawImage(sprites.bg_bridge, -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites.bg_bridge, bgW - scrollOffset, 0, bgW, bgH);
         ctx.fillStyle = "rgba(10, 15, 25, 0.22)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, bgW, bgH);
     } else if (lvl.sceneType === 'cossack_sich' && sprites.bg_sich && sprites.bg_sich.loaded) {
-        const bgW = canvas.width;
-        const bgH = canvas.height;
-        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
+        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
         ctx.drawImage(sprites.bg_sich, -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites.bg_sich, bgW - scrollOffset, 0, bgW, bgH);
     } else if (sprites.bg_village && sprites.bg_village.loaded) {
-        const bgW = canvas.width;
-        const bgH = canvas.height;
-        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
+        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
         ctx.drawImage(sprites.bg_village, -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites.bg_village, bgW - scrollOffset, 0, bgW, bgH);
     } else {
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, bgH);
         skyGrad.addColorStop(0, lvl.sky[0]);
         skyGrad.addColorStop(1, lvl.sky[1]);
         ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, bgW, bgH);
+    }
+
+    // Шар 2: Хмари з паралаксом (швидкість 0.28)
+    const cloudOffset = ((cameraX * 0.28) % bgW + bgW) % bgW;
+    ctx.fillStyle = lvl.era === 2 ? "rgba(140, 210, 255, 0.22)" : "rgba(255, 250, 235, 0.42)";
+    for (let pass = -1; pass <= 1; pass++) {
+        const baseX = pass * bgW - cloudOffset;
+        for (let cx = 80; cx < bgW; cx += 270) {
+            const cy = 58 + ((cx / 270) % 2) * 24;
+            ctx.beginPath();
+            ctx.arc(baseX + cx, cy, 24, 0, Math.PI * 2);
+            ctx.arc(baseX + cx + 22, cy - 6, 28, 0, Math.PI * 2);
+            ctx.arc(baseX + cx + 46, cy + 2, 22, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // Шар 3: Середній план пагорбів і кущів (швидкість 0.48)
+    const midOffset = ((cameraX * 0.48) % bgW + bgW) % bgW;
+    const horizonY = Math.min(bgH - 36, groundY - cameraY - 12);
+    if (horizonY > 80) {
+        for (let pass = -1; pass <= 1; pass++) {
+            const baseX = pass * bgW - midOffset;
+            ctx.fillStyle = lvl.era === 2 ? "rgba(22, 42, 68, 0.45)" : "rgba(38, 66, 28, 0.48)";
+            ctx.beginPath();
+            ctx.moveTo(baseX, bgH);
+            for (let hx = 0; hx <= bgW + 160; hx += 160) {
+                const peakH = 38 + ((hx / 160) % 3) * 18;
+                ctx.quadraticCurveTo(baseX + hx + 80, horizonY - peakH, baseX + hx + 160, horizonY);
+            }
+            ctx.lineTo(baseX + bgW + 160, bgH);
+            ctx.closePath();
+            ctx.fill();
+        }
     }
 
     // Тематичний банер на фоні для Чорнобаївки (3-й рівень 3-го блоку) або Кримського мосту
@@ -1794,6 +1826,18 @@ function draw() {
     for (let pt of particles) {
         ctx.fillStyle = pt.color;
         ctx.fillRect(pt.x, pt.y, 4, 4);
+    }
+
+    // Шар 4: Передній план трави та кущів із паралаксом для об'єму
+    const fgShift = cameraX * 0.15;
+    ctx.fillStyle = lvl.era === 2 ? "rgba(28, 58, 72, 0.78)" : "rgba(34, 68, 24, 0.82)";
+    for (let fx = 160; fx < LEVEL_WIDTH - 120; fx += 380) {
+        const bx = fx - fgShift;
+        ctx.beginPath();
+        ctx.arc(bx, groundY + 4, 16, Math.PI, 0);
+        ctx.arc(bx + 15, groundY + 4, 21, Math.PI, 0);
+        ctx.arc(bx + 30, groundY + 4, 15, Math.PI, 0);
+        ctx.fill();
     }
 
     // Прапор фінішу рівня
