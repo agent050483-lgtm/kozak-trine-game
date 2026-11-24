@@ -1005,7 +1005,6 @@ function initLevel(levelIdx) {
 function startLevel(levelIdx) {
     ensureAudioUnlocked();
     clearAllKeys();
-    toggleFullscreen();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.remove('hidden');
@@ -1015,9 +1014,20 @@ function startLevel(levelIdx) {
 
 function closeHistory() {
     ensureAudioUnlocked();
+    clearAllKeys();
     document.getElementById('history-modal').classList.add('hidden');
+    const docEl = document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+        if (req) {
+            try { req.call(docEl).catch(() => {}); } catch (e) {}
+        }
+    }
+    resize();
+    syncCameraImmediate();
     playEraMusic(LEVELS[currentLevelIdx].era);
     gameRunning = true;
+    draw();
     requestAnimationFrame(gameLoop);
 }
 
@@ -1762,34 +1772,54 @@ function draw() {
     if (player.invulnTimer % 10 > 5) ctx.globalAlpha = 0.5;
 
     if (player.flyingCar) {
-        const hoverY = Math.sin(nowSec * 3.2) * 5;
-        const tiltAngle = Math.sin(nowSec * 2.4) * 0.035;
-        const carW = Math.round(player.w * 2.35);
-        const carH = Math.round(player.h * 1.12);
+        const hoverY = Math.sin(nowSec * 3.8) * 7;
+        const moveBank = Math.max(-0.18, Math.min(0.18, (player.vx || 0) * 0.022 + (player.vy || 0) * 0.015));
+        const tiltAngle = Math.sin(nowSec * 2.6) * 0.03 + moveBank;
+        const carW = Math.round(player.w * 2.45);
+        const carH = Math.round(player.h * 1.18);
         const carCx = player.x + player.w / 2;
-        const carCy = player.y + player.h * 0.58 + hoverY;
+        const carCy = player.y + player.h * 0.56 + hoverY;
+
+        // Анімовані світлові потоки та сліди польоту позаду машини
+        ctx.save();
+        const trailLen = 28 + Math.abs(player.vx || 0) * 6;
+        ctx.strokeStyle = "rgba(0, 229, 255, 0.45)";
+        ctx.lineWidth = 2.5;
+        for (let t = 0; t < 3; t++) {
+            const ty = carCy - 14 + t * 14 + Math.sin(nowSec * 9 + t) * 3;
+            const txStart = carCx - player.facing * (carW * 0.42);
+            const txEnd = txStart - player.facing * (trailLen + ((t * 11 + Math.floor(nowSec * 30)) % 24));
+            ctx.beginPath();
+            ctx.moveTo(txStart, ty);
+            ctx.lineTo(txEnd, ty);
+            ctx.stroke();
+        }
+        ctx.restore();
 
         ctx.save();
         ctx.translate(carCx, carCy);
         ctx.rotate(tiltAngle);
         if (player.facing === -1) ctx.scale(-1, 1);
 
-        // Полум'я з турбін знизу
-        const flameFlicker = 0.8 + Math.sin(nowSec * 18) * 0.25;
-        const turbineOffsets = [-carW * 0.24, carW * 0.16];
-        for (let tx of turbineOffsets) {
-            ctx.fillStyle = "rgba(0, 229, 255, 0.85)";
+        // Анімоване полум'я та світлові кільця турбін
+        const flameFlicker = 0.82 + Math.sin(nowSec * 22) * 0.28;
+        const pulseRadius = 9 + Math.sin(nowSec * 14) * 3;
+        const turbineOffsets = [-carW * 0.25, carW * 0.16];
+        for (let idxT = 0; idxT < turbineOffsets.length; idxT++) {
+            const tx = turbineOffsets[idxT];
+            ctx.fillStyle = "rgba(0, 229, 255, 0.88)";
             ctx.beginPath();
-            ctx.moveTo(tx - 10, carH * 0.34);
-            ctx.lineTo(tx + 10, carH * 0.34);
-            ctx.lineTo(tx, carH * 0.34 + 24 * flameFlicker);
+            ctx.moveTo(tx - 11, carH * 0.32);
+            ctx.lineTo(tx + 11, carH * 0.32);
+            ctx.lineTo(tx, carH * 0.32 + 28 * flameFlicker);
             ctx.closePath();
             ctx.fill();
 
-            ctx.fillStyle = "rgba(255, 193, 7, 0.9)";
+            ctx.strokeStyle = "rgba(255, 215, 0, 0.85)";
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(tx, carH * 0.34 + 5, 6 * flameFlicker, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.arc(tx, carH * 0.32 + 4, pulseRadius, 0, Math.PI * 2);
+            ctx.stroke();
         }
 
         // Корпус літаючої машини
@@ -1800,9 +1830,24 @@ function draw() {
             ctx.fillRect(-carW / 2, -carH / 3, carW, carH * 0.6);
         }
 
-        // Легкий рух крил та коліс-турбін
-        const wingShift = Math.sin(nowSec * 5.0) * 2.5;
-        ctx.fillStyle = "rgba(180, 220, 255, 0.22)";
+        // Анімовані лопаті/турбіни та маячки на корпусі
+        const rotorAngle = nowSec * 16;
+        const rotorPositions = [-carW * 0.25, carW * 0.16];
+        for (let rx of rotorPositions) {
+            ctx.save();
+            ctx.translate(rx, carH * 0.18);
+            ctx.rotate(rotorAngle);
+            ctx.strokeStyle = "#80deea";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(-12, 0);
+            ctx.lineTo(12, 0);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        const wingShift = Math.sin(nowSec * 7.0) * 3.5;
+        ctx.fillStyle = "rgba(0, 229, 255, 0.35)";
         ctx.fillRect(-carW * 0.36, -4 + wingShift, carW * 0.22, 6);
         ctx.fillRect(carW * 0.12, 2 - wingShift, carW * 0.24, 6);
 
@@ -1903,13 +1948,56 @@ function gameLoop() {
 
 function bindTouch(id, keyName) {
     const btn = document.getElementById(id);
-    btn.addEventListener('touchstart', (e) => { e.preventDefault(); ensureAudioUnlocked(); keys[keyName] = true; }, { passive: false });
-    btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; }, { passive: false });
-    btn.addEventListener('touchcancel', (e) => { e.preventDefault(); keys[keyName] = false; }, { passive: false });
-    btn.addEventListener('mousedown', () => { ensureAudioUnlocked(); keys[keyName] = true; });
-    btn.addEventListener('mouseup', () => keys[keyName] = false);
-    btn.addEventListener('mouseleave', () => { keys[keyName] = false; });
+    if (!btn) return;
+    const press = (e) => {
+        if (e && e.cancelable) e.preventDefault();
+        ensureAudioUnlocked();
+        keys[keyName] = true;
+    };
+    const release = (e) => {
+        if (e && e.cancelable) e.preventDefault();
+        keys[keyName] = false;
+    };
+    btn.addEventListener('touchstart', press, { passive: false });
+    btn.addEventListener('touchend', release, { passive: false });
+    btn.addEventListener('touchcancel', release, { passive: false });
+    btn.addEventListener('pointerdown', press);
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointercancel', release);
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('mouseup', release);
+    btn.addEventListener('mouseleave', release);
 }
+
+// Додаткове сенсорне керування свайпом по екрану для зручності на телефоні
+let swipeStartX = null;
+let swipeStartY = null;
+canvas.addEventListener('touchstart', (e) => {
+    if (!gameRunning || !e.touches || e.touches.length === 0) return;
+    ensureAudioUnlocked();
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+}, { passive: true });
+
+canvas.addEventListener('touchmove', (e) => {
+    if (!gameRunning || swipeStartX === null || !e.touches || e.touches.length === 0) return;
+    const dx = e.touches[0].clientX - swipeStartX;
+    const dy = e.touches[0].clientY - swipeStartY;
+    if (Math.abs(dx) > 18) {
+        keys.left = dx < -18;
+        keys.right = dx > 18;
+    }
+    if (player && player.flyingCar && Math.abs(dy) > 18) {
+        keys.up = dy < -18;
+        keys.down = dy > 18;
+    }
+}, { passive: true });
+
+canvas.addEventListener('touchend', () => {
+    swipeStartX = null;
+    swipeStartY = null;
+    clearAllKeys();
+}, { passive: true });
 
 bindTouch('btn-left', 'left');
 bindTouch('btn-right', 'right');
