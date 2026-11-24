@@ -5,7 +5,44 @@ function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
-window.addEventListener('resize', resize);
+
+function clearAllKeys() {
+    keys.left = false;
+    keys.right = false;
+    keys.up = false;
+    keys.down = false;
+}
+
+function syncCameraImmediate() {
+    if (!player || typeof player.x !== 'number' || typeof player.y !== 'number') return;
+    const groundY = getGroundY();
+    const maxCamX = Math.max(0, LEVEL_WIDTH - canvas.width);
+    const maxCamY = Math.max(0, (groundY + 52) - canvas.height);
+    cameraX = Math.max(0, Math.min(maxCamX, player.x + (player.w || 0) / 2 - canvas.width * 0.35));
+    cameraY = Math.max(0, Math.min(maxCamY, player.y + (player.h || 0) / 2 - canvas.height * 0.48));
+}
+
+window.addEventListener('resize', () => {
+    resize();
+    syncCameraImmediate();
+});
+
+window.addEventListener('blur', () => {
+    clearAllKeys();
+});
+
+document.addEventListener('fullscreenchange', () => {
+    clearAllKeys();
+    resize();
+    syncCameraImmediate();
+});
+
+document.addEventListener('webkitfullscreenchange', () => {
+    clearAllKeys();
+    resize();
+    syncCameraImmediate();
+});
+
 resize();
 
 // ==========================================
@@ -967,11 +1004,13 @@ function initLevel(levelIdx) {
 
 function startLevel(levelIdx) {
     ensureAudioUnlocked();
+    clearAllKeys();
     toggleFullscreen();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.remove('hidden');
     initLevel(levelIdx);
+    syncCameraImmediate();
 }
 
 function closeHistory() {
@@ -1417,7 +1456,7 @@ function update() {
     const maxCamY = Math.max(0, (groundY + 52) - canvas.height);
 
     const targetCamX = Math.max(0, Math.min(maxCamX, player.x + player.w / 2 - canvas.width * 0.35));
-    const targetCamY = Math.max(0, Math.min(maxCamY, player.y + player.h / 2 - canvas.height * 0.58));
+    const targetCamY = Math.max(0, Math.min(maxCamY, player.y + player.h / 2 - canvas.height * 0.48));
 
     cameraX += (targetCamX - cameraX) * 0.16;
     cameraY += (targetCamY - cameraY) * 0.16;
@@ -1864,10 +1903,12 @@ function gameLoop() {
 
 function bindTouch(id, keyName) {
     const btn = document.getElementById(id);
-    btn.addEventListener('touchstart', (e) => { e.preventDefault(); ensureAudioUnlocked(); keys[keyName] = true; });
-    btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); ensureAudioUnlocked(); keys[keyName] = true; }, { passive: false });
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; }, { passive: false });
+    btn.addEventListener('touchcancel', (e) => { e.preventDefault(); keys[keyName] = false; }, { passive: false });
     btn.addEventListener('mousedown', () => { ensureAudioUnlocked(); keys[keyName] = true; });
     btn.addEventListener('mouseup', () => keys[keyName] = false);
+    btn.addEventListener('mouseleave', () => { keys[keyName] = false; });
 }
 
 bindTouch('btn-left', 'left');
