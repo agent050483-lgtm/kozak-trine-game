@@ -106,7 +106,9 @@ const SFX_PATHS = {
     crate_break: 'crate_break.wav',
     pickup: 'pickup.wav',
     jump: 'jump.wav',
-    enemy_hit: 'enemy_hit.wav'
+    enemy_hit: 'enemy_hit.wav',
+    defeat: 'defeat.wav',
+    vodka: 'vodka.wav'
 };
 
 const LEVEL_BGM = {
@@ -160,7 +162,7 @@ function playSynthFallback(key) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = key === 'pistol' ? 'sawtooth' : 'triangle';
-        const freqs = { saber: 420, pistol: 150, knife: 760, crate_break: 190, pickup: 620, jump: 320, enemy_hit: 130 };
+        const freqs = { saber: 420, pistol: 150, knife: 760, crate_break: 190, pickup: 620, jump: 320, enemy_hit: 130, defeat: 165, vodka: 480 };
         osc.frequency.setValueAtTime(freqs[key] || 300, now);
         osc.frequency.exponentialRampToValueAtTime(80, now + 0.16);
         gain.gain.setValueAtTime(0.18, now);
@@ -654,8 +656,8 @@ let cameraY = 0;
 const GRAVITY = 0.65;
 
 // Збільшений розмір світу: довжина 3400px та 4 поверхи вгору!
-const LEVEL_WIDTH = 3400;
-const LEVEL_FINISH_X = 3220;
+const LEVEL_WIDTH = 4100;
+const LEVEL_FINISH_X = 3900;
 
 const BASE_PLAYER_W = 78;
 const BASE_PLAYER_H = 132;
@@ -769,15 +771,19 @@ function buildLevelPlatforms(lvl, groundY) {
             { x: 1520, y: groundY - 165, w: 280, h: 18 },
             { x: 2150, y: groundY - 165, w: 300, h: 18 },
             { x: 2780, y: groundY - 165, w: 320, h: 18 },
+            { x: 3360, y: groundY - 165, w: 310, h: 18 },
             { x: 520,  y: groundY - 330, w: 280, h: 18 },
             { x: 1280, y: groundY - 330, w: 320, h: 18 },
             { x: 1980, y: groundY - 330, w: 290, h: 18 },
             { x: 2620, y: groundY - 330, w: 300, h: 18 },
+            { x: 3220, y: groundY - 330, w: 320, h: 18 },
             { x: 740,  y: groundY - 495, w: 300, h: 18 },
             { x: 1780, y: groundY - 495, w: 340, h: 18 },
             { x: 2420, y: groundY - 495, w: 310, h: 18 },
+            { x: 3040, y: groundY - 495, w: 330, h: 18 },
             { x: 1060, y: groundY - 660, w: 340, h: 18 },
-            { x: 2280, y: groundY - 660, w: 420, h: 18 }
+            { x: 2280, y: groundY - 660, w: 420, h: 18 },
+            { x: 2920, y: groundY - 660, w: 380, h: 18 }
         ];
         return rawPlats.map(p => ({
             x: p.x,
@@ -794,21 +800,25 @@ function buildLevelPlatforms(lvl, groundY) {
         { specIdx: 5, x: 1510, surfaceY: groundY - 165, w: 290 },
         { specIdx: 1, x: 2130, surfaceY: groundY - 165, w: 340 },
         { specIdx: 2, x: 2760, surfaceY: groundY - 165, w: 340 },
+        { specIdx: 1, x: 3340, surfaceY: groundY - 165, w: 320 },
 
         // 2-й поверх вгору (groundY - 330)
         { specIdx: 6, x: 500,  surfaceY: groundY - 330, w: 300 },
         { specIdx: 1, x: 1250, surfaceY: groundY - 330, w: 350 },
         { specIdx: 7, x: 1960, surfaceY: groundY - 330, w: 290 },
         { specIdx: 3, x: 2600, surfaceY: groundY - 330, w: 320 },
+        { specIdx: 0, x: 3200, surfaceY: groundY - 330, w: 330 },
 
         // 3-й поверх вгору (groundY - 495)
         { specIdx: 2, x: 720,  surfaceY: groundY - 495, w: 330 },
         { specIdx: 0, x: 1750, surfaceY: groundY - 495, w: 360 },
         { specIdx: 5, x: 2410, surfaceY: groundY - 495, w: 320 },
+        { specIdx: 2, x: 3020, surfaceY: groundY - 495, w: 340 },
 
         // 4-й поверх вгору (groundY - 660)
         { specIdx: 3, x: 1040, surfaceY: groundY - 660, w: 360 },
-        { specIdx: 0, x: 2260, surfaceY: groundY - 660, w: 430 }
+        { specIdx: 0, x: 2260, surfaceY: groundY - 660, w: 430 },
+        { specIdx: 1, x: 2900, surfaceY: groundY - 660, w: 390 }
     ];
 
     return layout.map(item => {
@@ -832,12 +842,16 @@ function buildLevelPlatforms(lvl, groundY) {
 function buildSixEnemiesForLevel(lvl, groundY, levelPlatforms) {
     const pool = ERA_ENEMY_TYPES[lvl.era] || ERA_ENEMY_TYPES[0];
     const placements = [
-        { platIdx: null, x: 560,  range: 190 }, // Земля (groundY)
+        { platIdx: null, x: 560,  range: 200 }, // Земля (groundY)
         { platIdx: 1,    x: 920,  range: 180 }, // Платформа 1-го поверху
-        { platIdx: 6,    x: 1340, range: 190 }, // Платформа 2-го поверху
-        { platIdx: 10,   x: 1840, range: 200 }, // Платформа 3-го поверху
-        { platIdx: 13,   x: 2360, range: 210 }, // Платформа 4-го поверху
-        { platIdx: 4,    x: 2840, range: 180 }  // Платформа перед фінішем
+        { platIdx: null, x: 1480, range: 220 }, // Земля (центр)
+        { platIdx: 7,    x: 1340, range: 190 }, // Платформа 2-го поверху
+        { platIdx: 12,   x: 1840, range: 200 }, // Платформа 3-го поверху
+        { platIdx: null, x: 2350, range: 230 }, // Земля (далі)
+        { platIdx: 16,   x: 2360, range: 210 }, // Платформа 4-го поверху
+        { platIdx: 4,    x: 2840, range: 180 }, // Платформа 1-го поверху
+        { platIdx: 14,   x: 3120, range: 190 }, // Платформа 3-го поверху
+        { platIdx: null, x: 3520, range: 220 }  // Земля перед фінішем
     ];
 
     return placements.map((pl, i) => {
@@ -887,7 +901,8 @@ function buildSixEnemiesForLevel(lvl, groundY, levelPlatforms) {
             weapon: template.weapon,
             lore: template.lore,
             flying: template.flying,
-            defeated: false
+            defeated: false,
+            animPhase: i * 1.15
         };
     });
 }
@@ -1331,7 +1346,8 @@ function update() {
             if (item.type === 'knife') player.knives += 3;
             if (item.type === 'pistol') player.pistolAmmo += 4;
             if (item.type === 'vodka') {
-                // 10 секунд (600 кадрів) інвертованого керування!
+                // Звук випитої горілки + 10 секунд (600 кадрів) інвертованого керування!
+                playSfx('vodka');
                 player.drunkTimer = 600;
                 spawnParticles(item.x + 15, item.y + 15, "#00e5ff", 22);
             } else {
@@ -1376,6 +1392,7 @@ function update() {
     const nowSec = performance.now() * 0.003;
     for (let en of enemies) {
         if (en.defeated || en.hp <= 0) continue;
+        en.animPhase = (en.animPhase || 0) + 0.14;
         en.x += en.vx;
         if (en.x > en.startX + en.range) {
             en.x = en.startX + en.range;
@@ -1385,7 +1402,7 @@ function update() {
             en.vx = Math.abs(en.vx);
         }
         if (en.flying) {
-            en.y = en.baseY + Math.sin(nowSec * 1.4 + en.startX) * 14;
+            en.y = en.baseY + Math.sin(nowSec * 2.1 + en.startX) * 18;
         } else {
             let floorY = groundY;
             for (let plat of platforms) {
@@ -1441,11 +1458,14 @@ function update() {
 function endLevel(victory) {
     gameRunning = false;
     stopBgm();
+    if (!victory) {
+        playSfx('defeat');
+    }
     const lvl = LEVELS[currentLevelIdx];
-    document.getElementById('end-title').innerText = victory ? "🏆 Рівень пройдено! Слава Україні!" : "💀 Спробуй ще раз!";
+    document.getElementById('end-title').innerText = victory ? "🏆 Рівень пройдено! Слава Україні!" : "💀 Тебе перемогли! Спробуй ще раз!";
     document.getElementById('end-text').innerText = victory
         ? `Ви успішно пройшли "${lvl.name}"! Шаблі про волю — рабів до раю не пускають!`
-        : `На рівні "${lvl.name}" вас зупинили. Спробуйте ще раз!`;
+        : `Тебе перемогли на рівні "${lvl.name}". Спробуйте ще раз!`;
     document.getElementById('next-level-btn').classList.toggle('hidden', !victory);
     document.getElementById('end-modal').classList.remove('hidden');
 }
@@ -1756,19 +1776,24 @@ function drawWaistHighWheatField(ctx, startX, endX, groundY, heroH, nowSec) {
             enemySprite = sprites[en.fallbackKey];
         }
 
+        const phase = en.animPhase || 0;
+        const bobY = en.flying ? Math.sin(phase * 1.2) * 5 : Math.abs(Math.sin(phase)) * -6;
+        const tilt = en.flying ? Math.sin(phase * 0.9) * 0.12 : Math.sin(phase) * 0.06;
+        const scaleX = 1 + Math.sin(phase * 2) * 0.035;
+        const scaleY = 1 - Math.sin(phase * 2) * 0.035;
+
         if (enemySprite && enemySprite.loaded) {
             ctx.save();
-            if (en.vx < 0) {
-                ctx.translate(en.x + en.w, en.y);
-                ctx.scale(-1, 1);
-                ctx.drawImage(enemySprite, 0, 0, en.w, en.h);
-            } else {
-                ctx.drawImage(enemySprite, en.x, en.y, en.w, en.h);
-            }
+            const cx = en.x + en.w / 2;
+            const cy = en.y + en.h + bobY;
+            ctx.translate(cx, cy);
+            ctx.rotate(tilt);
+            ctx.scale((en.vx < 0 ? -1 : 1) * scaleX, scaleY);
+            ctx.drawImage(enemySprite, -en.w / 2, -en.h, en.w, en.h);
             ctx.restore();
         } else {
             ctx.fillStyle = en.era === 1 ? "#3e4e2c" : (en.era === 2 ? "#263238" : "#8b0000");
-            ctx.fillRect(en.x, en.y, en.w, en.h);
+            ctx.fillRect(en.x, en.y + bobY, en.w, en.h);
         }
 
         // Підпис типу ворога над головою
