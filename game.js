@@ -5,44 +5,7 @@ function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
-
-function clearAllKeys() {
-    keys.left = false;
-    keys.right = false;
-    keys.up = false;
-    keys.down = false;
-}
-
-function syncCameraImmediate() {
-    if (!player || typeof player.x !== 'number' || typeof player.y !== 'number') return;
-    const groundY = getGroundY();
-    const maxCamX = Math.max(0, LEVEL_WIDTH - canvas.width);
-    const maxCamY = Math.max(0, (groundY + 52) - canvas.height);
-    cameraX = Math.max(0, Math.min(maxCamX, player.x + (player.w || 0) / 2 - canvas.width * 0.35));
-    cameraY = Math.max(0, Math.min(maxCamY, player.y + (player.h || 0) / 2 - canvas.height * 0.48));
-}
-
-window.addEventListener('resize', () => {
-    resize();
-    syncCameraImmediate();
-});
-
-window.addEventListener('blur', () => {
-    clearAllKeys();
-});
-
-document.addEventListener('fullscreenchange', () => {
-    clearAllKeys();
-    resize();
-    syncCameraImmediate();
-});
-
-document.addEventListener('webkitfullscreenchange', () => {
-    clearAllKeys();
-    resize();
-    syncCameraImmediate();
-});
-
+window.addEventListener('resize', resize);
 resize();
 
 // ==========================================
@@ -146,8 +109,12 @@ const SFX_PATHS = {
     enemy_hit: 'enemy_hit.wav'
 };
 
+const LEVEL_BGM = {
+    0: 'bgm_lvl1_cossack_sich.mp3'
+};
+
 const ERA_BGM = {
-    0: 'bgm_cossack.wav',
+    0: 'bgm_lvl1_cossack_sich.mp3',
     1: 'bgm_modern.wav',
     2: 'bgm_future.wav'
 };
@@ -218,9 +185,9 @@ function playSfx(key) {
     shot.play().catch(() => playSynthFallback(key));
 }
 
-function playEraMusic(eraIdx) {
+function playEraMusic(eraIdx, levelIdx = currentLevelIdx) {
     currentEraForAudio = eraIdx;
-    const src = (eraIdx === 0 && currentLevelIdx === 0) ? 'bgm_sich.mp3' : (ERA_BGM[eraIdx] || ERA_BGM[0]);
+    const src = (LEVEL_BGM && LEVEL_BGM[levelIdx]) || ERA_BGM[eraIdx] || ERA_BGM[0];
     if (bgmAudio && currentBgmSrc === src) {
         if (!isMuted && bgmAudio.paused) bgmAudio.play().catch(() => {});
         return;
@@ -381,10 +348,10 @@ const LEVELS = [
     // ================= БЛОК 1 (Рівні 1–4: Козацька доба) =================
     {
         era: 0,
-        shortTitle: "1. Запорозька Січ (1556)",
+        shortTitle: "1. ЗАПОРОЗЬКА СІЧ (1556)",
         desc: "Мала Хортиця, укріплення Байди та 4 поверхи оборони.",
-        name: "Рівень 1: Запорозька Січ (1556)",
-        historyTitle: "1556 рік — Заснування Січі на Малій Хортиці",
+        name: "РІВЕНЬ 1: ЗАПОРОЗЬКА СІЧ (1556)",
+        historyTitle: "1556 РІК — ЗАСНУВАННЯ СІЧІ НА МАЛІЙ ХОРТИЦІ",
         historyText: "Козацькі укріплення стають форпостом свободи. Підіймайся на 4 поверхи вгору по драбинах і канатах, розбивай ящики та стережися пляшки горілки!",
         sky: ["#1e3c72", "#2a5298"],
         ground: "#3b5e2b",
@@ -393,10 +360,10 @@ const LEVELS = [
     },
     {
         era: 0,
-        shortTitle: "2. Хмельниччина (1648)",
+        shortTitle: "2. ХМЕЛЬНИЧЧИНА (1648)",
         desc: "Визвольна війна Б. Хмельницького та козацькі походи.",
-        name: "Рівень 2: Хмельниччина (1648)",
-        historyTitle: "1648 рік — Визвольна війна під проводом Б. Хмельницького",
+        name: "РІВЕНЬ 2: ХМЕЛЬНИЧЧИНА (1648)",
+        historyTitle: "1648 РІК — ВИЗВОЛЬНА ВІЙНА ПІД ПРОВОДОМ Б. ХМЕЛЬНИЦЬКОГО",
         historyText: "Підіймаються козацькі полки. Збирай ножі та пістолі, проходь багатоповерхові платформи й веди наступ.",
         sky: ["#ff7e5f", "#feb47b"],
         ground: "#4a5d23",
@@ -405,10 +372,10 @@ const LEVELS = [
     },
     {
         era: 0,
-        shortTitle: "3. Доба Мазепи (1709)",
+        shortTitle: "3. ДОБА МАЗЕПИ (1709)",
         desc: "Козацьке бароко, собори та боротьба за державність.",
-        name: "Рівень 3: Доба Гетьмана Мазепи (1709)",
-        historyTitle: "1709 рік — Доба Мазепи та козацького бароко",
+        name: "РІВЕНЬ 3: ДОБА ГЕТЬМАНА МАЗЕПИ (1709)",
+        historyTitle: "1709 РІК — ДОБА МАЗЕПИ ТА КОЗАЦЬКОГО БАРОКО",
         historyText: "Час розквіту культури й боротьби за незалежність Гетьманщини. Підіймайся драбинами й канатами та тримай стрій.",
         sky: ["#2c3e50", "#4ca1af"],
         ground: "#5c4033",
@@ -417,10 +384,10 @@ const LEVELS = [
     },
     {
         era: 0,
-        shortTitle: "4. Холодний Яр та УНР (1918)",
+        shortTitle: "4. ХОЛОДНИЙ ЯР ТА УНР (1918)",
         desc: "Ліси Холодного Яру та визвольна боротьба УНР.",
-        name: "Рівень 4: Холодний Яр та УНР (1918)",
-        historyTitle: "1918 рік — Холодний Яр та Українська Народна Республіка",
+        name: "РІВЕНЬ 4: ХОЛОДНИЙ ЯР ТА УНР (1918)",
+        historyTitle: "1918 РІК — ХОЛОДНИЙ ЯР ТА УКРАЇНСЬКА НАРОДНА РЕСПУБЛІКА",
         historyText: "Повстанські загони Холодного Яру боронять волю України. Пробийся крізь усі яруси до синьо-жовтого стяга!",
         sky: ["#232526", "#414345"],
         ground: "#2e3b27",
@@ -431,10 +398,10 @@ const LEVELS = [
     // ================= БЛОК 2 (Рівні 5–8: Сучасність та Повномасштабна війна) =================
     {
         era: 1,
-        shortTitle: "5. АТО та ООС (2014–2021)",
+        shortTitle: "5. АТО ТА ООС (2014–2021)",
         desc: "Початок спротиву, блокпости та стійкість українських воїнів.",
-        name: "Рівень 5: АТО / ООС — Східний рубіж",
-        historyTitle: "АТО та ООС — Перші роки незламності",
+        name: "РІВЕНЬ 5: АТО / ООС — СХІДНИЙ РУБІЖ",
+        historyTitle: "АТО ТА ООС — ПЕРШІ РОКИ НЕЗЛАМНОСТІ",
         historyText: "Українські захисники тримають оборону проти окупантів на всіх висотах. Рухайся вперед і долай перешкоди.",
         sky: ["#37474f", "#78909c"],
         ground: "#4e5938",
@@ -443,10 +410,10 @@ const LEVELS = [
     },
     {
         era: 1,
-        shortTitle: "6. Повномасштабна війна (2022)",
+        shortTitle: "6. ПОВНОМАСШТАБНА ВІЙНА (2022)",
         desc: "Масштабна оборона міст, незламність та контрнаступи ЗСУ.",
-        name: "Рівень 6: Повномасштабна війна — Битва за волю",
-        historyTitle: "Повномасштабна війна в Україні — Опір та визволення",
+        name: "РІВЕНЬ 6: ПОВНОМАСШТАБНА ВІЙНА — БИТВА ЗА ВОЛЮ",
+        historyTitle: "ПОВНОМАСШТАБНА ВІЙНА В УКРАЇНІ — ОПІР ТА ВИЗВОЛЕННЯ",
         historyText: "Від оборони столиці й півдня до звільнення українських міст від окупантів. Кожен крок наближає перемогу.",
         sky: ["#263238", "#546e7a"],
         ground: "#3e4732",
@@ -455,10 +422,10 @@ const LEVELS = [
     },
     {
         era: 1,
-        shortTitle: "7. Легендарна Чорнобаївка (26:0)",
+        shortTitle: "7. ЛЕГЕНДАРНА ЧОРНОБАЇВКА (26:0)",
         desc: "Бермудський трикутник ворога — розгром окупантів на Херсонщині!",
-        name: "Рівень 7: Легендарна Чорнобаївка (Серія 26:0)",
-        historyTitle: "Чорнобаївка — Незламний рубіж Херсонщини",
+        name: "РІВЕНЬ 7: ЛЕГЕНДАРНА ЧОРНОБАЇВКА (СЕРІЯ 26:0)",
+        historyTitle: "ЧОРНОБАЇВКА — НЕЗЛАМНИЙ РУБІЖ ХЕРСОНЩИНИ",
         historyText: "Легендарний аеродром Чорнобаївка, де російські окупанти знову і знову зазнавали нищівного розгрому від ЗСУ!",
         sky: ["#1f1c2c", "#928dab"],
         ground: "#2e4033",
@@ -467,10 +434,10 @@ const LEVELS = [
     },
     {
         era: 1,
-        shortTitle: "8. Підрив Кримського мосту (08.10.2022)",
+        shortTitle: "8. ПІДРИВ КРИМСЬКОГО МОСТУ (08.10.2022)",
         desc: "Визначна операція ураження незаконної переправи окупантів.",
-        name: "Рівень 8: Підрив Кримського мосту — 08.10.2022",
-        historyTitle: "08.10.2022 — Підрив Кримського мосту",
+        name: "РІВЕНЬ 8: ПІДРИВ КРИМСЬКОГО МОСТУ — 08.10.2022",
+        historyTitle: "08.10.2022 — ПІДРИВ КРИМСЬКОГО МОСТУ",
         historyText: "Точний удар по незаконній переправі ворога через Керченську протоку! Пройди палаючий міст до переможного прапора!",
         sky: ["#1a237e", "#0288d1"],
         ground: "#37474f",
@@ -481,10 +448,10 @@ const LEVELS = [
     // ================= БЛОК 3 (Рівні 9–12: Переможне Майбутнє з 4 новими фонами) =================
     {
         era: 2,
-        shortTitle: "9. Нічний Неоновий Київ Перемоги",
+        shortTitle: "9. НІЧНИЙ НЕОНОВИЙ КИЇВ ПЕРЕМОГИ",
         desc: "Вогні майбутнього над Дніпром, Батьківщина-Мати та літаючі авто.",
-        name: "Рівень 9: Майбутнє — Нічний Неоновий Київ",
-        historyTitle: "Україна перемогла — Ера технологій та свободи",
+        name: "РІВЕНЬ 9: МАЙБУТНЄ — НІЧНИЙ НЕОНОВИЙ КИЇВ",
+        historyTitle: "УКРАЇНА ПЕРЕМОГЛА — ЕРА ТЕХНОЛОГІЙ ТА СВОБОДИ",
         historyText: "Величний Київ майбутнього сяє тризубами та вишиванковими вогнями! Керуй літаючою машиною над Дніпром.",
         sky: ["#0b132b", "#1c2541"],
         ground: "#1d3557",
@@ -494,10 +461,10 @@ const LEVELS = [
     },
     {
         era: 2,
-        shortTitle: "10. Світанок над Золотоверхим Києвом",
+        shortTitle: "10. СВІТАНОК НАД ЗОЛОТОВЕРХИМ КИЄВОМ",
         desc: "Сонячний світанок, швидкісні магістралі та вільне небо України.",
-        name: "Рівень 10: Майбутнє — Світанок над Дніпром",
-        historyTitle: "Світанок нової епохи вільної України",
+        name: "РІВЕНЬ 10: МАЙБУТНЄ — СВІТАНОК НАД ДНІПРОМ",
+        historyTitle: "СВІТАНОК НОВОЇ ЕПОХИ ВІЛЬНОЇ УКРАЇНИ",
         historyText: "Золоті куполи Лаври поєднуються з футуристичними вежами над Дніпром. Тримай курс у небі Перемоги!",
         sky: ["#ff7e5f", "#feb47b"],
         ground: "#2d6a4f",
@@ -507,10 +474,10 @@ const LEVELS = [
     },
     {
         era: 2,
-        shortTitle: "11. Вечірні Вогні Мегаполісу",
+        shortTitle: "11. ВЕЧІРНІ ВОГНІ МЕГАПОЛІСУ",
         desc: "Сутінковий політ над мостами та сяючими хмарочосами України.",
-        name: "Рівень 11: Майбутнє — Вечірній Мегаполіс",
-        historyTitle: "Незламна держава високих технологій",
+        name: "РІВЕНЬ 11: МАЙБУТНЄ — ВЕЧІРНІЙ МЕГАПОЛІС",
+        historyTitle: "НЕЗЛАМНА ДЕРЖАВА ВИСОКИХ ТЕХНОЛОГІЙ",
         historyText: "Багаторівневі естакади, сяючий Тризуб та щит Батьківщини-Матері оберігають мирне небо.",
         sky: ["#162447", "#1f4068"],
         ground: "#1b4332",
@@ -520,10 +487,10 @@ const LEVELS = [
     },
     {
         era: 2,
-        shortTitle: "12. Фінал: Еко-Столиця Майбутнього",
+        shortTitle: "12. ФІНАЛ: ЕКО-СТОЛИЦЯ МАЙБУТНЬОГО",
         desc: "Зелені сади на вежах, сонячна енергія та мирне небо Перемоги!",
-        name: "Рівень 12: Фінал — Квітуча Україна Майбутнього",
-        historyTitle: "Фінал — Квітуча та непереможна Україна",
+        name: "РІВЕНЬ 12: ФІНАЛ — КВІТУЧА УКРАЇНА МАЙБУТНЬОГО",
+        historyTitle: "ФІНАЛ — КВІТУЧА ТА НЕПЕРЕМОЖНА УКРАЇНА",
         historyText: "Фінальний політ над зеленим містом майбутнього під мирним небом вільної України!",
         sky: ["#091e3a", "#2f80ed"],
         ground: "#2d6a4f",
@@ -791,9 +758,12 @@ const COSSACK_PLAT_CATALOG = [
     { key: 'cossack_plat_isl_4',  natW: 466,  natH: 297, walkRatio: 0.185 }
 ];
 
+// Рівномірне масштабування платформ (1.35x) для просторіших ярусів
+const PLATFORM_SCALE = 1.35;
+
 function buildLevelPlatforms(lvl, groundY) {
     if (lvl.era !== 0) {
-        return [
+        const rawPlats = [
             { x: 340,  y: groundY - 165, w: 260, h: 18 },
             { x: 860,  y: groundY - 165, w: 300, h: 18 },
             { x: 1520, y: groundY - 165, w: 280, h: 18 },
@@ -809,6 +779,12 @@ function buildLevelPlatforms(lvl, groundY) {
             { x: 1060, y: groundY - 660, w: 340, h: 18 },
             { x: 2280, y: groundY - 660, w: 420, h: 18 }
         ];
+        return rawPlats.map(p => ({
+            x: p.x,
+            y: p.y,
+            w: Math.round(p.w * PLATFORM_SCALE),
+            h: Math.round(p.h * PLATFORM_SCALE)
+        }));
     }
 
     const layout = [
@@ -835,19 +811,17 @@ function buildLevelPlatforms(lvl, groundY) {
         { specIdx: 0, x: 2260, surfaceY: groundY - 660, w: 430 }
     ];
 
-    const minHouseAboveWalk = Math.round(BASE_PLAYER_H * 1.18);
     return layout.map(item => {
         const sp = COSSACK_PLAT_CATALOG[item.specIdx];
-        const scaledW = Math.round(item.w * 1.42);
-        const rawH = Math.round(scaledW * (sp.natH / sp.natW));
-        const drawH = Math.max(rawH, Math.round(minHouseAboveWalk / Math.max(sp.walkRatio, 0.32)));
+        const scaledW = Math.round(item.w * PLATFORM_SCALE);
+        const drawH = Math.round(scaledW * (sp.natH / sp.natW));
         const walkOffset = drawH * sp.walkRatio;
         const drawTop = item.surfaceY - walkOffset;
         return {
             x: item.x,
             y: item.surfaceY,
             w: scaledW,
-            h: 18,
+            h: Math.round(18 * PLATFORM_SCALE),
             cossackSpriteKey: sp.key,
             drawTop: drawTop,
             drawH: drawH
@@ -924,7 +898,7 @@ function initLevel(levelIdx) {
     const groundY = getGroundY();
 
     player = {
-        name: "Герой",
+        name: "ГЕРОЙ",
         x: 110,
         y: lvl.flyingCar ? groundY - 220 : groundY - BASE_PLAYER_H,
         w: BASE_PLAYER_W,
@@ -1004,30 +978,18 @@ function initLevel(levelIdx) {
 
 function startLevel(levelIdx) {
     ensureAudioUnlocked();
-    clearAllKeys();
+    toggleFullscreen();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.remove('hidden');
     initLevel(levelIdx);
-    syncCameraImmediate();
 }
 
 function closeHistory() {
     ensureAudioUnlocked();
-    clearAllKeys();
     document.getElementById('history-modal').classList.add('hidden');
-    const docEl = document.documentElement;
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
-        if (req) {
-            try { req.call(docEl).catch(() => {}); } catch (e) {}
-        }
-    }
-    resize();
-    syncCameraImmediate();
-    playEraMusic(LEVELS[currentLevelIdx].era);
+    playEraMusic(LEVELS[currentLevelIdx].era, currentLevelIdx);
     gameRunning = true;
-    draw();
     requestAnimationFrame(gameLoop);
 }
 
@@ -1466,7 +1428,7 @@ function update() {
     const maxCamY = Math.max(0, (groundY + 52) - canvas.height);
 
     const targetCamX = Math.max(0, Math.min(maxCamX, player.x + player.w / 2 - canvas.width * 0.35));
-    const targetCamY = Math.max(0, Math.min(maxCamY, player.y + player.h / 2 - canvas.height * 0.48));
+    const targetCamY = Math.max(0, Math.min(maxCamY, player.y + player.h / 2 - canvas.height * 0.58));
 
     cameraX += (targetCamX - cameraX) * 0.16;
     cameraY += (targetCamY - cameraY) * 0.16;
@@ -1527,68 +1489,39 @@ function drawBackground() {
     const lvl = LEVELS[currentLevelIdx];
     const groundY = getGroundY();
 
-    const bgW = canvas.width;
-    const bgH = canvas.height;
-
-    // Шар 1: Дальній фон (повільний паралакс)
+    // На 4-му рівні 2-го блоку (Кримський міст) показуємо завантажений фон Кримського мосту!
     if (lvl.bgKey && sprites[lvl.bgKey] && sprites[lvl.bgKey].loaded) {
-        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
+        const bgW = canvas.width;
+        const bgH = canvas.height;
+        const scrollOffset = ((cameraX * 0.22) % bgW + bgW) % bgW;
         ctx.drawImage(sprites[lvl.bgKey], -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites[lvl.bgKey], bgW - scrollOffset, 0, bgW, bgH);
     } else if (lvl.sceneType === 'modern_bridge' && sprites.bg_bridge && sprites.bg_bridge.loaded) {
-        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
+        const bgW = canvas.width;
+        const bgH = canvas.height;
+        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
         ctx.drawImage(sprites.bg_bridge, -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites.bg_bridge, bgW - scrollOffset, 0, bgW, bgH);
         ctx.fillStyle = "rgba(10, 15, 25, 0.22)";
-        ctx.fillRect(0, 0, bgW, bgH);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else if (lvl.sceneType === 'cossack_sich' && sprites.bg_sich && sprites.bg_sich.loaded) {
-        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
+        const bgW = canvas.width;
+        const bgH = canvas.height;
+        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
         ctx.drawImage(sprites.bg_sich, -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites.bg_sich, bgW - scrollOffset, 0, bgW, bgH);
     } else if (sprites.bg_village && sprites.bg_village.loaded) {
-        const scrollOffset = ((cameraX * 0.14) % bgW + bgW) % bgW;
+        const bgW = canvas.width;
+        const bgH = canvas.height;
+        const scrollOffset = ((cameraX * 0.25) % bgW + bgW) % bgW;
         ctx.drawImage(sprites.bg_village, -scrollOffset, 0, bgW, bgH);
         ctx.drawImage(sprites.bg_village, bgW - scrollOffset, 0, bgW, bgH);
     } else {
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, bgH);
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
         skyGrad.addColorStop(0, lvl.sky[0]);
         skyGrad.addColorStop(1, lvl.sky[1]);
         ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, bgW, bgH);
-    }
-
-    // Шар 2: Хмари з паралаксом (швидкість 0.28)
-    const cloudOffset = ((cameraX * 0.28) % bgW + bgW) % bgW;
-    ctx.fillStyle = lvl.era === 2 ? "rgba(140, 210, 255, 0.22)" : "rgba(255, 250, 235, 0.42)";
-    for (let pass = -1; pass <= 1; pass++) {
-        const baseX = pass * bgW - cloudOffset;
-        for (let cx = 80; cx < bgW; cx += 270) {
-            const cy = 58 + ((cx / 270) % 2) * 24;
-            ctx.beginPath();
-            ctx.arc(baseX + cx, cy, 24, 0, Math.PI * 2);
-            ctx.arc(baseX + cx + 22, cy - 6, 28, 0, Math.PI * 2);
-            ctx.arc(baseX + cx + 46, cy + 2, 22, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-
-    // Шар 3: Середній план пагорбів і кущів (швидкість 0.48)
-    const midOffset = ((cameraX * 0.48) % bgW + bgW) % bgW;
-    const horizonY = Math.min(bgH - 36, groundY - cameraY - 12);
-    if (horizonY > 80) {
-        for (let pass = -1; pass <= 1; pass++) {
-            const baseX = pass * bgW - midOffset;
-            ctx.fillStyle = lvl.era === 2 ? "rgba(22, 42, 68, 0.45)" : "rgba(38, 66, 28, 0.48)";
-            ctx.beginPath();
-            ctx.moveTo(baseX, bgH);
-            for (let hx = 0; hx <= bgW + 160; hx += 160) {
-                const peakH = 38 + ((hx / 160) % 3) * 18;
-                ctx.quadraticCurveTo(baseX + hx + 80, horizonY - peakH, baseX + hx + 160, horizonY);
-            }
-            ctx.lineTo(baseX + bgW + 160, bgH);
-            ctx.closePath();
-            ctx.fill();
-        }
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     // Тематичний банер на фоні для Чорнобаївки (3-й рівень 3-го блоку) або Кримського мосту
@@ -1624,6 +1557,80 @@ function draw() {
     ctx.save();
     ctx.translate(-Math.floor(cameraX), -Math.floor(cameraY));
 
+
+// Хата / будівля — вища за героя (приблизно 1.75x висоти героя)
+function drawHeroScaleHouse(ctx, x, groundY, heroH, era) {
+    const houseH = Math.round(heroH * 1.75);
+    const houseW = Math.round(houseH * 1.15);
+    const wallH = Math.round(houseH * 0.56);
+    const roofH = houseH - wallH;
+    const left = x;
+    const top = groundY - houseH;
+    const wallTop = top + roofH;
+
+    ctx.save();
+    // Тінь під хатою
+    ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+    ctx.fillRect(left - 4, groundY - 3, houseW + 8, 6);
+
+    // Стіни
+    ctx.fillStyle = era === 0 ? "#f5ebd6" : (era === 1 ? "#e8e4dc" : "#273549");
+    ctx.fillRect(left + 8, wallTop, houseW - 16, wallH);
+    ctx.strokeStyle = "#4a2c11";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(left + 8, wallTop, houseW - 16, wallH);
+
+    // Двері
+    const doorW = Math.max(16, Math.round(houseW * 0.17));
+    const doorH = Math.max(30, Math.round(wallH * 0.62));
+    ctx.fillStyle = "#6d3b1e";
+    ctx.fillRect(left + Math.round(houseW * 0.24), groundY - doorH, doorW, doorH);
+
+    // Вікно
+    const winSize = Math.max(16, Math.round(wallH * 0.28));
+    ctx.fillStyle = era === 2 ? "#38bdf8" : "#87ceeb";
+    ctx.fillRect(left + Math.round(houseW * 0.56), wallTop + Math.round(wallH * 0.22), winSize, winSize);
+    ctx.strokeStyle = "#4a2c11";
+    ctx.strokeRect(left + Math.round(houseW * 0.56), wallTop + Math.round(wallH * 0.22), winSize, winSize);
+
+    // Дах
+    ctx.fillStyle = era === 0 ? "#8b5a2b" : (era === 1 ? "#7c2d12" : "#0ea5e9");
+    ctx.beginPath();
+    ctx.moveTo(left - 6, wallTop + 2);
+    ctx.lineTo(left + houseW / 2, top);
+    ctx.lineTo(left + houseW + 6, wallTop + 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "#3b1f0e";
+    ctx.stroke();
+    ctx.restore();
+}
+
+// Поле пшениці — приблизно по пояс герою (~0.48 * висоти героя)
+function drawWaistHighWheatField(ctx, startX, endX, groundY, heroH, nowSec) {
+    const stalkH = Math.round(heroH * 0.48);
+    ctx.save();
+    for (let wx = startX; wx < endX; wx += 14) {
+        const sway = Math.sin(nowSec * 1.4 + wx * 0.04) * 5;
+        const tipX = wx + sway;
+        const tipY = groundY - stalkH;
+
+        ctx.strokeStyle = "#d9a726";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(wx, groundY);
+        ctx.quadraticCurveTo(wx + sway * 0.4, groundY - stalkH * 0.55, tipX, tipY);
+        ctx.stroke();
+
+        // Колосся зверху
+        ctx.fillStyle = "#f2c94c";
+        ctx.beginPath();
+        ctx.ellipse(tipX, tipY - 3, 2.8, 6.5, sway * 0.04, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
     // Земля вздовж усього рівня (3400px)
     ctx.fillStyle = "#4b8b3b";
     ctx.fillRect(0, groundY, LEVEL_WIDTH, 12);
@@ -1632,8 +1639,17 @@ function draw() {
     ctx.fillStyle = "#2b190c";
     ctx.fillRect(0, groundY + 36, LEVEL_WIDTH, 120);
 
-    // Маки вздовж землі
+    // Поле пшениці (по пояс герою) та хати (вищі за героя)
     const nowSec = performance.now() * 0.003;
+    const currentHeroH = (player && player.h) ? player.h : BASE_PLAYER_H;
+    drawWaistHighWheatField(ctx, 220, 1180, groundY, currentHeroH, nowSec);
+    drawWaistHighWheatField(ctx, 1650, 2650, groundY, currentHeroH, nowSec);
+
+    const lvlEra = (LEVELS[currentLevelIdx] && typeof LEVELS[currentLevelIdx].era === 'number') ? LEVELS[currentLevelIdx].era : 0;
+    drawHeroScaleHouse(ctx, 1220, groundY, currentHeroH, lvlEra);
+    drawHeroScaleHouse(ctx, 2720, groundY, currentHeroH, lvlEra);
+
+    // Маки вздовж землі
     for (let sx = 40; sx < LEVEL_WIDTH - 100; sx += 180) {
         const sway = Math.sin(nowSec + sx) * 0.14;
         drawPoppy(ctx, sx, groundY, sway);
@@ -1772,54 +1788,34 @@ function draw() {
     if (player.invulnTimer % 10 > 5) ctx.globalAlpha = 0.5;
 
     if (player.flyingCar) {
-        const hoverY = Math.sin(nowSec * 3.8) * 7;
-        const moveBank = Math.max(-0.18, Math.min(0.18, (player.vx || 0) * 0.022 + (player.vy || 0) * 0.015));
-        const tiltAngle = Math.sin(nowSec * 2.6) * 0.03 + moveBank;
-        const carW = Math.round(player.w * 2.45);
-        const carH = Math.round(player.h * 1.18);
+        const hoverY = Math.sin(nowSec * 3.2) * 5;
+        const tiltAngle = Math.sin(nowSec * 2.4) * 0.035;
+        const carW = Math.round(player.w * 2.35);
+        const carH = Math.round(player.h * 1.12);
         const carCx = player.x + player.w / 2;
-        const carCy = player.y + player.h * 0.56 + hoverY;
-
-        // Анімовані світлові потоки та сліди польоту позаду машини
-        ctx.save();
-        const trailLen = 28 + Math.abs(player.vx || 0) * 6;
-        ctx.strokeStyle = "rgba(0, 229, 255, 0.45)";
-        ctx.lineWidth = 2.5;
-        for (let t = 0; t < 3; t++) {
-            const ty = carCy - 14 + t * 14 + Math.sin(nowSec * 9 + t) * 3;
-            const txStart = carCx - player.facing * (carW * 0.42);
-            const txEnd = txStart - player.facing * (trailLen + ((t * 11 + Math.floor(nowSec * 30)) % 24));
-            ctx.beginPath();
-            ctx.moveTo(txStart, ty);
-            ctx.lineTo(txEnd, ty);
-            ctx.stroke();
-        }
-        ctx.restore();
+        const carCy = player.y + player.h * 0.58 + hoverY;
 
         ctx.save();
         ctx.translate(carCx, carCy);
         ctx.rotate(tiltAngle);
         if (player.facing === -1) ctx.scale(-1, 1);
 
-        // Анімоване полум'я та світлові кільця турбін
-        const flameFlicker = 0.82 + Math.sin(nowSec * 22) * 0.28;
-        const pulseRadius = 9 + Math.sin(nowSec * 14) * 3;
-        const turbineOffsets = [-carW * 0.25, carW * 0.16];
-        for (let idxT = 0; idxT < turbineOffsets.length; idxT++) {
-            const tx = turbineOffsets[idxT];
-            ctx.fillStyle = "rgba(0, 229, 255, 0.88)";
+        // Полум'я з турбін знизу
+        const flameFlicker = 0.8 + Math.sin(nowSec * 18) * 0.25;
+        const turbineOffsets = [-carW * 0.24, carW * 0.16];
+        for (let tx of turbineOffsets) {
+            ctx.fillStyle = "rgba(0, 229, 255, 0.85)";
             ctx.beginPath();
-            ctx.moveTo(tx - 11, carH * 0.32);
-            ctx.lineTo(tx + 11, carH * 0.32);
-            ctx.lineTo(tx, carH * 0.32 + 28 * flameFlicker);
+            ctx.moveTo(tx - 10, carH * 0.34);
+            ctx.lineTo(tx + 10, carH * 0.34);
+            ctx.lineTo(tx, carH * 0.34 + 24 * flameFlicker);
             ctx.closePath();
             ctx.fill();
 
-            ctx.strokeStyle = "rgba(255, 215, 0, 0.85)";
-            ctx.lineWidth = 2;
+            ctx.fillStyle = "rgba(255, 193, 7, 0.9)";
             ctx.beginPath();
-            ctx.arc(tx, carH * 0.32 + 4, pulseRadius, 0, Math.PI * 2);
-            ctx.stroke();
+            ctx.arc(tx, carH * 0.34 + 5, 6 * flameFlicker, 0, Math.PI * 2);
+            ctx.fill();
         }
 
         // Корпус літаючої машини
@@ -1830,24 +1826,9 @@ function draw() {
             ctx.fillRect(-carW / 2, -carH / 3, carW, carH * 0.6);
         }
 
-        // Анімовані лопаті/турбіни та маячки на корпусі
-        const rotorAngle = nowSec * 16;
-        const rotorPositions = [-carW * 0.25, carW * 0.16];
-        for (let rx of rotorPositions) {
-            ctx.save();
-            ctx.translate(rx, carH * 0.18);
-            ctx.rotate(rotorAngle);
-            ctx.strokeStyle = "#80deea";
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.moveTo(-12, 0);
-            ctx.lineTo(12, 0);
-            ctx.stroke();
-            ctx.restore();
-        }
-
-        const wingShift = Math.sin(nowSec * 7.0) * 3.5;
-        ctx.fillStyle = "rgba(0, 229, 255, 0.35)";
+        // Легкий рух крил та коліс-турбін
+        const wingShift = Math.sin(nowSec * 5.0) * 2.5;
+        ctx.fillStyle = "rgba(180, 220, 255, 0.22)";
         ctx.fillRect(-carW * 0.36, -4 + wingShift, carW * 0.22, 6);
         ctx.fillRect(carW * 0.12, 2 - wingShift, carW * 0.24, 6);
 
@@ -1912,18 +1893,6 @@ function draw() {
         ctx.fillRect(pt.x, pt.y, 4, 4);
     }
 
-    // Шар 4: Передній план трави та кущів із паралаксом для об'єму
-    const fgShift = cameraX * 0.15;
-    ctx.fillStyle = lvl.era === 2 ? "rgba(28, 58, 72, 0.78)" : "rgba(34, 68, 24, 0.82)";
-    for (let fx = 160; fx < LEVEL_WIDTH - 120; fx += 380) {
-        const bx = fx - fgShift;
-        ctx.beginPath();
-        ctx.arc(bx, groundY + 4, 16, Math.PI, 0);
-        ctx.arc(bx + 15, groundY + 4, 21, Math.PI, 0);
-        ctx.arc(bx + 30, groundY + 4, 15, Math.PI, 0);
-        ctx.fill();
-    }
-
     // Прапор фінішу рівня
     if (sprites.flag && sprites.flag.loaded) {
         ctx.drawImage(sprites.flag, LEVEL_FINISH_X, groundY - 140, 74, 140);
@@ -1948,56 +1917,11 @@ function gameLoop() {
 
 function bindTouch(id, keyName) {
     const btn = document.getElementById(id);
-    if (!btn) return;
-    const press = (e) => {
-        if (e && e.cancelable) e.preventDefault();
-        ensureAudioUnlocked();
-        keys[keyName] = true;
-    };
-    const release = (e) => {
-        if (e && e.cancelable) e.preventDefault();
-        keys[keyName] = false;
-    };
-    btn.addEventListener('touchstart', press, { passive: false });
-    btn.addEventListener('touchend', release, { passive: false });
-    btn.addEventListener('touchcancel', release, { passive: false });
-    btn.addEventListener('pointerdown', press);
-    btn.addEventListener('pointerup', release);
-    btn.addEventListener('pointercancel', release);
-    btn.addEventListener('mousedown', press);
-    btn.addEventListener('mouseup', release);
-    btn.addEventListener('mouseleave', release);
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); ensureAudioUnlocked(); keys[keyName] = true; });
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+    btn.addEventListener('mousedown', () => { ensureAudioUnlocked(); keys[keyName] = true; });
+    btn.addEventListener('mouseup', () => keys[keyName] = false);
 }
-
-// Додаткове сенсорне керування свайпом по екрану для зручності на телефоні
-let swipeStartX = null;
-let swipeStartY = null;
-canvas.addEventListener('touchstart', (e) => {
-    if (!gameRunning || !e.touches || e.touches.length === 0) return;
-    ensureAudioUnlocked();
-    swipeStartX = e.touches[0].clientX;
-    swipeStartY = e.touches[0].clientY;
-}, { passive: true });
-
-canvas.addEventListener('touchmove', (e) => {
-    if (!gameRunning || swipeStartX === null || !e.touches || e.touches.length === 0) return;
-    const dx = e.touches[0].clientX - swipeStartX;
-    const dy = e.touches[0].clientY - swipeStartY;
-    if (Math.abs(dx) > 18) {
-        keys.left = dx < -18;
-        keys.right = dx > 18;
-    }
-    if (player && player.flyingCar && Math.abs(dy) > 18) {
-        keys.up = dy < -18;
-        keys.down = dy > 18;
-    }
-}, { passive: true });
-
-canvas.addEventListener('touchend', () => {
-    swipeStartX = null;
-    swipeStartY = null;
-    clearAllKeys();
-}, { passive: true });
 
 bindTouch('btn-left', 'left');
 bindTouch('btn-right', 'right');
