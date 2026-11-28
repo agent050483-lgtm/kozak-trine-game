@@ -13,6 +13,65 @@ resize();
 // ==========================================
 const SPRITE_PATHS = {
     hero: 'hero_sprite.png',
+    // ОКРЕМІ СПРАЙТИ ГЕРОЯ ПІД КОЖНУ ЕПОХУ (просто закинь відповідний PNG у корінь гри)
+    hero_era0: 'hero_era0.png', // Епоха 1: Козацька доба (якщо немає — бере hero_sprite.png)
+    hero_era1: 'hero_era1.png', // Епоха 2: АТО / Сучасна війна
+    hero_era2: 'hero_era2.png', // Епоха 3: Переможне Майбутнє
+    // Опціональні кадри анімації під кожну епоху (hero_era1_walk_0..5.png, hero_era1_attack_0..5.png, hero_era1_jump_0..5.png)
+    hero_era0_attack_0: 'hero_era0_attack_0.png',
+    hero_era0_attack_1: 'hero_era0_attack_1.png',
+    hero_era0_attack_2: 'hero_era0_attack_2.png',
+    hero_era0_attack_3: 'hero_era0_attack_3.png',
+    hero_era0_attack_4: 'hero_era0_attack_4.png',
+    hero_era0_attack_5: 'hero_era0_attack_5.png',
+    hero_era0_walk_0: 'hero_era0_walk_0.png',
+    hero_era0_walk_1: 'hero_era0_walk_1.png',
+    hero_era0_walk_2: 'hero_era0_walk_2.png',
+    hero_era0_walk_3: 'hero_era0_walk_3.png',
+    hero_era0_walk_4: 'hero_era0_walk_4.png',
+    hero_era0_walk_5: 'hero_era0_walk_5.png',
+    hero_era0_jump_0: 'hero_era0_jump_0.png',
+    hero_era0_jump_1: 'hero_era0_jump_1.png',
+    hero_era0_jump_2: 'hero_era0_jump_2.png',
+    hero_era0_jump_3: 'hero_era0_jump_3.png',
+    hero_era0_jump_4: 'hero_era0_jump_4.png',
+    hero_era0_jump_5: 'hero_era0_jump_5.png',
+    hero_era1_attack_0: 'hero_era1_attack_0.png',
+    hero_era1_attack_1: 'hero_era1_attack_1.png',
+    hero_era1_attack_2: 'hero_era1_attack_2.png',
+    hero_era1_attack_3: 'hero_era1_attack_3.png',
+    hero_era1_attack_4: 'hero_era1_attack_4.png',
+    hero_era1_attack_5: 'hero_era1_attack_5.png',
+    hero_era1_walk_0: 'hero_era1_walk_0.png',
+    hero_era1_walk_1: 'hero_era1_walk_1.png',
+    hero_era1_walk_2: 'hero_era1_walk_2.png',
+    hero_era1_walk_3: 'hero_era1_walk_3.png',
+    hero_era1_walk_4: 'hero_era1_walk_4.png',
+    hero_era1_walk_5: 'hero_era1_walk_5.png',
+    hero_era1_jump_0: 'hero_era1_jump_0.png',
+    hero_era1_jump_1: 'hero_era1_jump_1.png',
+    hero_era1_jump_2: 'hero_era1_jump_2.png',
+    hero_era1_jump_3: 'hero_era1_jump_3.png',
+    hero_era1_jump_4: 'hero_era1_jump_4.png',
+    hero_era1_jump_5: 'hero_era1_jump_5.png',
+    hero_era2_attack_0: 'hero_era2_attack_0.png',
+    hero_era2_attack_1: 'hero_era2_attack_1.png',
+    hero_era2_attack_2: 'hero_era2_attack_2.png',
+    hero_era2_attack_3: 'hero_era2_attack_3.png',
+    hero_era2_attack_4: 'hero_era2_attack_4.png',
+    hero_era2_attack_5: 'hero_era2_attack_5.png',
+    hero_era2_walk_0: 'hero_era2_walk_0.png',
+    hero_era2_walk_1: 'hero_era2_walk_1.png',
+    hero_era2_walk_2: 'hero_era2_walk_2.png',
+    hero_era2_walk_3: 'hero_era2_walk_3.png',
+    hero_era2_walk_4: 'hero_era2_walk_4.png',
+    hero_era2_walk_5: 'hero_era2_walk_5.png',
+    hero_era2_jump_0: 'hero_era2_jump_0.png',
+    hero_era2_jump_1: 'hero_era2_jump_1.png',
+    hero_era2_jump_2: 'hero_era2_jump_2.png',
+    hero_era2_jump_3: 'hero_era2_jump_3.png',
+    hero_era2_jump_4: 'hero_era2_jump_4.png',
+    hero_era2_jump_5: 'hero_era2_jump_5.png',
     hero_attack_0: 'hero_attack_0.png',
     hero_attack_1: 'hero_attack_1.png',
     hero_attack_2: 'hero_attack_2.png',
@@ -1859,11 +1918,16 @@ function drawWaistHighWheatField(ctx, startX, endX, groundY, heroH, nowSec) {
 
         ctx.restore();
     } else {
-        let activeSprite = sprites.hero;
+        const heroEraIdx = (LEVELS[currentLevelIdx] && typeof LEVELS[currentLevelIdx].era === 'number') ? LEVELS[currentLevelIdx].era : 0;
+        const eraBaseSpr = sprites[`hero_era${heroEraIdx}`];
+        const hasCustomEraSprite = !!(eraBaseSpr && eraBaseSpr.loaded);
+        let activeSprite = hasCustomEraSprite ? eraBaseSpr : sprites.hero;
+
         if (player.attackTimer > 0) {
             const elapsed = player.attackDuration - player.attackTimer;
             const frameIdx = Math.min(5, Math.floor((elapsed / player.attackDuration) * 6));
-            const atkSpr = sprites[`hero_attack_${frameIdx}`];
+            const eraAtkSpr = sprites[`hero_era${heroEraIdx}_attack_${frameIdx}`];
+            const atkSpr = (eraAtkSpr && eraAtkSpr.loaded) ? eraAtkSpr : (!hasCustomEraSprite ? sprites[`hero_attack_${frameIdx}`] : null);
             if (atkSpr && atkSpr.loaded) {
                 activeSprite = atkSpr;
             }
@@ -1875,13 +1939,15 @@ function drawWaistHighWheatField(ctx, startX, endX, groundY, heroH, nowSec) {
             else if (player.vy <= 8) jumpIdx = 3;
             else if (player.vy <= 13) jumpIdx = 4;
             else jumpIdx = 5;
-            const jmpSpr = sprites[`hero_jump_${jumpIdx}`];
+            const eraJmpSpr = sprites[`hero_era${heroEraIdx}_jump_${jumpIdx}`];
+            const jmpSpr = (eraJmpSpr && eraJmpSpr.loaded) ? eraJmpSpr : (!hasCustomEraSprite ? sprites[`hero_jump_${jumpIdx}`] : null);
             if (jmpSpr && jmpSpr.loaded) {
                 activeSprite = jmpSpr;
             }
         } else if (Math.abs(player.vx) > 0.35 && !player.onClimbable) {
             const walkIdx = Math.floor(player.walkAnimTimer / 6) % 6;
-            const wlkSpr = sprites[`hero_walk_${walkIdx}`];
+            const eraWlkSpr = sprites[`hero_era${heroEraIdx}_walk_${walkIdx}`];
+            const wlkSpr = (eraWlkSpr && eraWlkSpr.loaded) ? eraWlkSpr : (!hasCustomEraSprite ? sprites[`hero_walk_${walkIdx}`] : null);
             if (wlkSpr && wlkSpr.loaded) {
                 activeSprite = wlkSpr;
             }
